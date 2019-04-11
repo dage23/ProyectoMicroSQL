@@ -17,19 +17,19 @@ namespace ProyectoMicroSQL.Controllers
             return View();
         }
         [HttpPost]
-        public ActionResult ConfiguracionDiccionarioManual(HttpPostedFileBase PostConseguidas)
+        public ActionResult ConfiguracionDiccionarioManual(HttpPostedFileBase Post)
         {
             string archivoConseguidas = string.Empty;
-            if (PostConseguidas != null)
+            if (Post != null)
             {
                 string ArchivoEstampas = Server.MapPath("~/Uploads/");
                 if (!Directory.Exists(ArchivoEstampas))
                 {
                     Directory.CreateDirectory(ArchivoEstampas);
                 }
-                archivoConseguidas = ArchivoEstampas + Path.GetFileName(PostConseguidas.FileName);
-                string extension = Path.GetExtension(PostConseguidas.FileName);
-                PostConseguidas.SaveAs(archivoConseguidas);
+                archivoConseguidas = ArchivoEstampas + Path.GetFileName(Post.FileName);
+                string extension = Path.GetExtension(Post.FileName);
+                Post.SaveAs(archivoConseguidas);
                 string csvData = System.IO.File.ReadAllText(archivoConseguidas);
                 foreach (string fila in csvData.Split('\n'))
                 {
@@ -44,10 +44,10 @@ namespace ProyectoMicroSQL.Controllers
             }
             return RedirectToAction("Menu");
         }
-        [HttpPost]
+        
         public ActionResult ConfiguracionDiccionarioAuto()
         {
-            string csvData = System.IO.File.ReadAllText("c:\\...\\ProyectoMicroSQL\\DeafultDefinition.csv");
+            string csvData = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/DeafultDefinition.csv"));
             foreach (string fila in csvData.Split('\n'))
             {
                 if (!string.IsNullOrEmpty(fila))

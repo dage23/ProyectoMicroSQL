@@ -5,8 +5,8 @@
 
 <h2>Configuracion</h2>
 
-@using (Html.BeginForm("Configuracion", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
-    <input type="file" name="PostChampions" />
+@using (Html.BeginForm("ConfiguracionDiccionarioManual", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
+ {
+    <input type="file" name="Post" />
     <input type="submit" value="Importar" class="btn btn-default" />
-}
+ }
