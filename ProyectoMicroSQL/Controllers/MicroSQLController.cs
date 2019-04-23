@@ -13,8 +13,10 @@ namespace ProyectoMicroSQL.Controllers
 {
     public class MicroSQLController : Controller
     {
+
         public ActionResult Menu()
         {
+            Suc
             return View();
         }
         public ActionResult Configuracion()

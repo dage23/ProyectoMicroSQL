@@ -1,12 +1,92 @@
-﻿
+﻿@model ProyectoMicroSQL.Models.Diccionario
 @{
     ViewBag.Title = "Configuracion";
 }
 
 <h2>Configuracion</h2>
+<h1>Edicion de Diccionario</h1>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionSelect) - @Html.LabelFor(model => model.FuncionSelect)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionSelect, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionFrom) - @Html.LabelFor(model => model.FuncionFrom)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionFrom, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionDelete) - @Html.LabelFor(model => model.FuncionDelete)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionDelete, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+
+       
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionDropTable) - @Html.LabelFor(model => model.FuncionDropTable)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionDropTable, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionWhere) - @Html.LabelFor(model => model.FuncionWhere)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionWhere, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionCreateTable) - @Html.LabelFor(model => model.FuncionCreateTable)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionCreateTable, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+        
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionInsertInto) - @Html.LabelFor(model => model.FuncionInsertInto)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionInsertInto, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionValue) - @Html.LabelFor(model => model.FuncionValue)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionValue, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FuncionGo) - @Html.LabelFor(model => model.FuncionGo)
+        </dt>
+
+        <dd>
+            @Html.EditorFor(model => model.FuncionGo, new { htmlAttributes = new { @class = "form-control" } })
+        </dd>
+    </dl>
+    <input type="submit" value="Guardar" class="btn btn-default" />
+</div>
+
+<h1>Importacion de Diccionario</h1>
 
 @using (Html.BeginForm("ConfiguracionDiccionarioManual", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
- {
+{
     <input type="file" name="Post" />
     <input type="submit" value="Importar" class="btn btn-default" />
- }
+}
