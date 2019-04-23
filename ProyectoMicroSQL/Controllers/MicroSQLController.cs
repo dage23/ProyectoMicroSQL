@@ -7,11 +7,20 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Dynamic;
 using ProyectoMicroSQL.Models;
+using ProyectoMicroSQL.Controllers;
 
 namespace ProyectoMicroSQL.Controllers
 {
     public class MicroSQLController : Controller
     {
+        public ActionResult Menu()
+        {
+            return View();
+        }
+        public ActionResult Configuracion()
+        {           
+            return RedirectToAction("ConfiguracionDiccionarioManual");
+        }
         public ActionResult ConfiguracionDiccionarioManual()
         {
             return View();
@@ -26,7 +35,7 @@ namespace ProyectoMicroSQL.Controllers
                 if (!Directory.Exists(ArchivoEstampas))
                 {
                     Directory.CreateDirectory(ArchivoEstampas);
-                }
+                }                
                 archivoConseguidas = ArchivoEstampas + Path.GetFileName(Post.FileName);
                 string extension = Path.GetExtension(Post.FileName);
                 Post.SaveAs(archivoConseguidas);
@@ -40,11 +49,10 @@ namespace ProyectoMicroSQL.Controllers
                         string Identificador = campos[1];
                         Datos.Instance.diccionarioColeccionada.Add(Llave, Identificador);
                     }
-                }
-            }
+                }                
+            }           
             return RedirectToAction("Menu");
         }
-        
         public ActionResult ConfiguracionDiccionarioAuto()
         {
             string csvData = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/DeafultDefinition.csv"));
@@ -59,6 +67,19 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             return RedirectToAction("Menu");
+        }
+        public ActionResult IngresarSQL()
+        {
+            return RedirectToAction("Data");
+        }
+        public ActionResult Data()
+        {
+            return View("DatosSQL");
+        }
+        [HttpPost]
+        public ActionResult Data(HttpPostedFileBase Post)
+        {
+            return View("DatosSQL");
         }
     }
 }
