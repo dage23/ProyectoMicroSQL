@@ -131,6 +131,7 @@
     <Compile Include="Models\ArbolAbstracto.cs" />
     <Compile Include="Models\Diccionario.cs" />
     <Compile Include="Models\NodoArbolB.cs" />
+    <Compile Include="Models\Textos.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
