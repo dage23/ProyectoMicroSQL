@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ProyectoMicroSQL.Models
-{   
-    public abstract class ArbolAbstracto<T> where T : IComparable<T>
+{       
+    public abstract class ArbolAbstracto<T> where T:IComparable<T>
     {
         public abstract void AgregarElemento(T NuevoDato);
 
@@ -13,7 +14,7 @@ namespace ProyectoMicroSQL.Models
 
         public abstract void ActualizarElemento(T ActuEle);
 
-        public abstract bool isEmpty();
+        public abstract bool Vacio();
 
         public abstract List<Object> ConvertirObjeto();
     }    
