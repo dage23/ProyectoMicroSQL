@@ -16,7 +16,6 @@ namespace ProyectoMicroSQL.Controllers
 
         public ActionResult Menu()
         {
-            Suc
             return View();
         }
         public ActionResult Configuracion()

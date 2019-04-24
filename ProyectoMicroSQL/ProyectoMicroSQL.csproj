@@ -128,6 +128,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Datos.cs" />
+    <Compile Include="Models\ArbolAbstracto.cs" />
     <Compile Include="Models\Diccionario.cs" />
     <Compile Include="Models\NodoArbolB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
