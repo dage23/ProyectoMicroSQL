@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProyectoMicroSQL.Models
+namespace Trees_ED
 {       
     public abstract class ArbolAbstracto<T> where T:IComparable<T>
     {
