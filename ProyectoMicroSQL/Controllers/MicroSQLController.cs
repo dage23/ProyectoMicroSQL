@@ -22,12 +22,8 @@ namespace ProyectoMicroSQL.Controllers
         {           
             return RedirectToAction("ConfiguracionDiccionarioManual");
         }
-        public ActionResult ConfiguracionDiccionarioManual()
-        {
-            return View();
-        }
         [HttpPost]
-        public ActionResult ConfiguracionDiccionarioManual(HttpPostedFileBase Post)
+        public ActionResult ImportarArchivo(HttpPostedFileBase Post)
         {
             string archivoConseguidas = string.Empty;
             if (Post != null)
@@ -54,6 +50,38 @@ namespace ProyectoMicroSQL.Controllers
             }           
             return RedirectToAction("Menu");
         }
+        public ActionResult ConfiguracionDiccionarioManual()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult ConfiguracionDiccionarioManual(FormCollection collection)
+        {
+            var DiccionarioVar = new Diccionario
+            {
+                FuncionCreateTable = collection["FuncionCreateTable"],
+                FuncionDelete = collection["FuncionDelete"],
+                FuncionDropTable = collection["FuncionDropTable"],
+                FuncionFrom = collection["FuncionFrom"],
+                FuncionGo = collection["FuncionGo"],
+                FuncionInsertInto = collection["FuncionInsertInto"],
+                FuncionSelect = collection["FuncionSelect"],
+                FuncionValue = collection["FuncionValue"],
+                FuncionWhere = collection["FuncionWhere"]
+            };
+            Datos.Instance.diccionarioColeccionada.Clear();
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionCreateTable,"CREATE TABLE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDelete, "DELETE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDropTable, "DROP TABLE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionFrom, "FROM");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionGo, "Go");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionInsertInto, "INSERT INTO");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionSelect, "SELECT");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionWhere, "WHERE");
+            return RedirectToAction("Menu");
+        }
+
         public ActionResult ConfiguracionDiccionarioAuto()
         {
             string csvData = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/DeafultDefinition.csv"));

@@ -11,7 +11,7 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.FuncionSelect) - @Html.LabelFor(model => model.FuncionSelect)
+            @Html.DisplayNameFor(model => model.FuncionSelect)
         </th>
 
         <th>
@@ -19,7 +19,7 @@
         </th>
 
         <th>
-            @Html.DisplayNameFor(model => model.FuncionFrom) - @Html.LabelFor(model => model.FuncionFrom)
+            @Html.DisplayNameFor(model => model.FuncionFrom)
         </th>
 
         <th>
@@ -27,7 +27,7 @@
         </th>
 
         <th>
-            @Html.DisplayNameFor(model => model.FuncionDelete) - @Html.LabelFor(model => model.FuncionDelete)
+            @Html.DisplayNameFor(model => model.FuncionDelete)
         </th>
 
         <th>
@@ -37,14 +37,14 @@
 
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.FuncionDropTable) - @Html.LabelFor(model => model.FuncionDropTable)
+            @Html.DisplayNameFor(model => model.FuncionDropTable)
         </th>
 
         <th>
             @Html.EditorFor(model => model.FuncionDropTable, new { htmlAttributes = new { @class = "form-control" } })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.FuncionWhere) - @Html.LabelFor(model => model.FuncionWhere)
+            @Html.DisplayNameFor(model => model.FuncionWhere)
         </th>
 
         <th>
@@ -52,7 +52,7 @@
         </th>
 
         <th>
-            @Html.DisplayNameFor(model => model.FuncionCreateTable) - @Html.LabelFor(model => model.FuncionCreateTable)
+            @Html.DisplayNameFor(model => model.FuncionCreateTable)
         </th>
 
         <th>
@@ -62,7 +62,7 @@
 
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.FuncionInsertInto) - @Html.LabelFor(model => model.FuncionInsertInto)
+            @Html.DisplayNameFor(model => model.FuncionInsertInto)
         </th>
 
         <th>
@@ -70,7 +70,7 @@
         </th>
 
         <th>
-            @Html.DisplayNameFor(model => model.FuncionValue) - @Html.LabelFor(model => model.FuncionValue)
+            @Html.DisplayNameFor(model => model.FuncionValue)
         </th>
 
         <th>
@@ -78,7 +78,7 @@
         </th>
 
         <th>
-            @Html.DisplayNameFor(model => model.FuncionGo) - @Html.LabelFor(model => model.FuncionGo)
+           @Html.DisplayNameFor(model => model.FuncionGo)
         </th>
 
         <th>
@@ -86,11 +86,11 @@
         </th>
     </tr>  
     </table>
-    <button type="submit" value="Guardar" class="btn btn-default" </button>
+    <input type="submit" value="Guardar" class="btn btn-default">
 }
 
     <h1>Importacion de Diccionario</h1>
-    @using (Html.BeginForm("ConfiguracionDiccionarioManual", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("ImportarArchivo", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         <input type="file" name="Post" />
         <input type="submit" value="Importar" class="btn btn-default" />
