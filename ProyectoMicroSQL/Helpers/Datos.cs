@@ -14,7 +14,6 @@ public class Datos
             {
                 return _instance;
             }
-
         }
     }
     public Dictionary<string, string> diccionarioColeccionada = new Dictionary<string, string>();
