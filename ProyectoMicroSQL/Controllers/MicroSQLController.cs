@@ -25,6 +25,7 @@ namespace ProyectoMicroSQL.Controllers
         [HttpPost]
         public ActionResult ImportarArchivo(HttpPostedFileBase Post)
         {
+            Datos.Instance.diccionarioColeccionada.Clear();
             string archivoConseguidas = string.Empty;
             if (Post != null)
             {
@@ -48,7 +49,7 @@ namespace ProyectoMicroSQL.Controllers
                     }
                 }                
             }           
-            return RedirectToAction("Menu");
+            return RedirectToAction("IngresarSQL");
         }
         public ActionResult ConfiguracionDiccionarioManual()
         {
@@ -79,12 +80,13 @@ namespace ProyectoMicroSQL.Controllers
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionSelect, "SELECT");
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionWhere, "WHERE");
-            return RedirectToAction("Menu");
+            return RedirectToAction("IngresarSQL");
         }
 
         public ActionResult ConfiguracionDiccionarioAuto()
         {
             string csvData = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/DeafultDefinition.csv"));
+
             foreach (string fila in csvData.Split('\n'))
             {
                 if (!string.IsNullOrEmpty(fila))
@@ -106,9 +108,20 @@ namespace ProyectoMicroSQL.Controllers
             return View("DatosSQL");
         }
         [HttpPost]
-        public ActionResult Data(HttpPostedFileBase Post)
+        public ActionResult Data(FormCollection Sintaxis)
         {
+            //foreach (var item in )
+            //{
+
+
+
+            //}
             return View("DatosSQL");
         }
     }
 }
+//public void Insertar(string [] listaComandos)
+//{
+//    //Logic here...
+//    return;
+//}

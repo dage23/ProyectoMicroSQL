@@ -1,5 +1,4 @@
-﻿@model ProyectoMicroSQL.Models.Diccionario
-
+﻿@model ProyectoMicroSQL.Models.Sintaxis
 @{
     ViewBag.Title = "Ingreso de Código";
 }
@@ -7,9 +6,11 @@
 <h2>DatosSQL</h2>
 
 <div>
-    <h4>Diccionario</h4>
-<textarea id="test" name="test" onkeyup="resizeTextarea('test')" data-resizable="true"></textarea>
+@*<textarea id="test" name="SintaxisTest" data-resizable="true"></textarea>*@
+    @Html.TextAreaFor(model=>model.SintaxisEscrita, new { @cols = "500", @rows = "10", @style = "width:200%;"})
     <div class="col-md-offset-2 col-md-10">
         <input type="submit" value="Ingresar" class="btn btn-default" />
     </div>
 </div>
+
+<h6> @Html.ActionLink("Ingresar nuevo Diccionario", "Configuracion") </h6>

@@ -132,6 +132,7 @@
     </Compile>
     <Compile Include="Helpers\Datos.cs" />
     <Compile Include="Models\Diccionario.cs" />
+    <Compile Include="Models\Sintaxis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
