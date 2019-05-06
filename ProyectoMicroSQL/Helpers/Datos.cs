@@ -17,5 +17,6 @@ public class Datos
         }
     }
     public Dictionary<string, string> diccionarioColeccionada = new Dictionary<string, string>();
+    public List<string> ListaAtributos = new List<string>();
 }
 

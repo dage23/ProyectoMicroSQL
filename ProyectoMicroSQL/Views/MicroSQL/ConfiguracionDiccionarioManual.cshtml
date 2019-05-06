@@ -7,8 +7,7 @@
 <h1>Edicion de Diccionario</h1>
 
 @using (Html.BeginForm("ConfiguracionDiccionarioManual", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
-<table class="table">
+{<table class="table">
     <tr>
         <th>
             @Html.DisplayNameFor(model => model.FuncionSelect)
@@ -87,11 +86,11 @@
     </tr>  
     </table>
     <input type="submit" value="Guardar" class="btn btn-default">
-}
+ }
 
-    <h1>Importacion de Diccionario</h1>
-    @using (Html.BeginForm("ImportarArchivo", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
+ <h1>Importacion de Diccionario</h1>
+ @using (Html.BeginForm("ImportarArchivo", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
+  {
         <input type="file" name="Post" />
         <input type="submit" value="Importar" class="btn btn-default" />
-    }
+  }

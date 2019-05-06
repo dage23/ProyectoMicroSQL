@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ArbolB">
-      <HintPath>..\..\ArbolB\bin\Debug\ArbolB.dll</HintPath>
+      <HintPath>..\..\..\ArbolDLL\ArbolDLL\ArbolB\ArbolB\bin\Debug\ArbolB.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
