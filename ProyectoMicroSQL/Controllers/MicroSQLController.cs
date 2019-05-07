@@ -8,6 +8,9 @@ using System.Text.RegularExpressions;
 using System.Dynamic;
 using ProyectoMicroSQL.Models;
 using ProyectoMicroSQL.Controllers;
+using ArbolBDLL;
+using Trees_ED;
+using Tabla=ArbolBDLL.Tabla;
 
 namespace ProyectoMicroSQL.Controllers
 {
@@ -85,7 +88,7 @@ namespace ProyectoMicroSQL.Controllers
 
         public ActionResult ConfiguracionDiccionarioAuto()
         {
-            string csvData = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/DeafultDefinition.csv"));
+            string csvData = System.IO.File.ReadAllText(Server.MapPath(@"~/MicroSQL/microSQL.ini"));
 
             foreach (string fila in csvData.Split('\n'))
             {
@@ -165,15 +168,15 @@ namespace ProyectoMicroSQL.Controllers
                 ValoresTabla[i] = ValoresTabla[i].Trim();
             }
 
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(1))).Count < 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(1))).Count >= 3)
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(1));
             }
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(2))).Count < 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(2))).Count >= 3)
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(2));
             }
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(3))).Count < 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(3))).Count >= 3)
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(3));
             }
@@ -199,7 +202,7 @@ namespace ProyectoMicroSQL.Controllers
                 throw new System.InvalidOperationException("Debe ser un tipo " + Datos.Instance.ListaAtributos.ElementAt(2));
             }
             string LlavePrimaria = " ";
-            for (int i = 0; i < ValoresTabla[0].Split(' ').Length; i++)
+            for (int i = 2; i < ValoresTabla[0].Split(' ').Length; i++)
             {
                 LlavePrimaria += ValoresTabla[0].Split(' ')[i] + " ";
             }
@@ -240,8 +243,45 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 ArregloNombreColumnas[i] = ValoresTabla[i].Split(' ')[0].ToUpper();
                 ListaNombreColumna.Add(ValoresTabla[i].Split(' ')[0].ToUpper());
-                ListaTipoColumnas.Add(ValoresTabla[i].Split(' ')[0].ToUpper());
+                ListaTipoColumnas.Add(ValoresTabla[i].Split(' ')[1].ToUpper());
+                string[] ArregloListaNombreTablas=Datos.Instance.ListaTablasExistentes.ToArray();
+                if (Datos.Instance.ListaTablasExistentes.Count() > 0)
+                {
+                    for (int j = 0; j < ArregloListaNombreTablas.Length; j++)
+                    {
+                        if (ArregloListaNombreTablas[i]==NombreTabla.ToUpper())
+                        {
+                            throw new System.InvalidOperationException("El nombre " + NombreTabla + " no puede repetirse");
+                        }
+                    }
+                }                
             }
+            CrearArchivoTabla(ListaNombreColumna,ListaTipoColumnas,NombreTabla);
+            CrearArbolDeTabla(NombreTabla);
+        }
+        public void CrearArchivoTabla(List<string> NombreColumnas, List<string> TipoColumnas, string Nombre)
+        {
+            FileStream ArchivoTabla = new FileStream(@"C:\Users\allan\Documents\GitHub\ProyectoMicroSQL\ProyectoMicroSQL\microSQL\tablas\" + Nombre + ".tabla", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            StreamWriter Escritor = new StreamWriter(ArchivoTabla);
+            Escritor.WriteLine(Nombre);
+            for (int i = 0; i < NombreColumnas.Count; i++)
+            {
+                if (i==NombreColumnas.Count-1)
+                {
+                    Escritor.Write(NombreColumnas.ElementAt(i) + "|" + TipoColumnas.ElementAt(i));
+                }
+                else
+                {
+                    Escritor.WriteLine(NombreColumnas.ElementAt(i) + "|" + TipoColumnas.ElementAt(i));
+                }
+            }
+            Escritor.Flush();
+            ArchivoTabla.Close();
+        }
+        public void CrearArbolDeTabla(string NombreArbol)
+        {
+            ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla> CrearArbol = new ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla>(@"C:\Users\allan\Documents\GitHub\ProyectoMicroSQL\ProyectoMicroSQL\microSQL\arboles\" + NombreArbol + ".arbolb", 7);
+            CrearArbol.CerrarArchivo();
         }
     }
 

@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ProyectoMicroSQL.Helpers
 {
-    public class Tabla : IComparable<Tabla>
+    class Tabla : IComparable<Tabla>
     {
         public Tabla(int id, List<object> objetos)
         {

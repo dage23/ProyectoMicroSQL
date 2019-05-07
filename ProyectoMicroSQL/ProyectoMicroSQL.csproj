@@ -45,8 +45,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ArbolB">
-      <HintPath>..\..\..\ArbolDLL\ArbolDLL\ArbolB\ArbolB\bin\Debug\ArbolB.dll</HintPath>
+    <Reference Include="ArbolBDLL, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ArbolBDLL\ArbolBDLL\bin\Debug\ArbolBDLL.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
