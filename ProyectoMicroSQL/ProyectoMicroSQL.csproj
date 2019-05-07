@@ -131,6 +131,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Datos.cs" />
+    <Compile Include="Helpers\Tabla.cs" />
+    <Compile Include="Helpers\Utilidades.cs" />
     <Compile Include="Models\Diccionario.cs" />
     <Compile Include="Models\Sintaxis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
