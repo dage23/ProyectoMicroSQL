@@ -10,7 +10,7 @@ using ProyectoMicroSQL.Models;
 using ProyectoMicroSQL.Controllers;
 using ArbolBDLL;
 using Trees_ED;
-using Tabla=ArbolBDLL.Tabla;
+using Tabla = ArbolBDLL.Tabla;
 
 namespace ProyectoMicroSQL.Controllers
 {
@@ -63,26 +63,26 @@ namespace ProyectoMicroSQL.Controllers
         {
             var DiccionarioVar = new Diccionario
             {
-                FuncionCreateTable = collection["FuncionCreateTable"],
-                FuncionDelete = collection["FuncionDelete"],
-                FuncionDropTable = collection["FuncionDropTable"],
-                FuncionFrom = collection["FuncionFrom"],
-                FuncionGo = collection["FuncionGo"],
-                FuncionInsertInto = collection["FuncionInsertInto"],
                 FuncionSelect = collection["FuncionSelect"],
+                FuncionFrom = collection["FuncionFrom"],
+                FuncionDelete = collection["FuncionDelete"],
+                FuncionWhere = collection["FuncionWhere"],
+                FuncionCreateTable = collection["FuncionCreateTable"],
+                FuncionDropTable = collection["FuncionDropTable"],
+                FuncionInsertInto = collection["FuncionInsertInto"],
                 FuncionValue = collection["FuncionValue"],
-                FuncionWhere = collection["FuncionWhere"]
+                FuncionGo = collection["FuncionGo"]
             };
             Datos.Instance.diccionarioColeccionada.Clear();
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionCreateTable, "CREATE TABLE");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDelete, "DELETE");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDropTable, "DROP TABLE");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionFrom, "FROM");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionGo, "Go");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionInsertInto, "INSERT INTO");
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionSelect, "SELECT");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionFrom, "FROM");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDelete, "DELETE");
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionWhere, "WHERE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionCreateTable, "CREATE TABLE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDropTable, "DROP TABLE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionInsertInto, "INSERT INTO");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
+            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionGo, "GO");
             return RedirectToAction("IngresarSQL");
         }
 
@@ -122,10 +122,10 @@ namespace ProyectoMicroSQL.Controllers
                 SintaxisEscrita = Sintaxis["SintaxisEscrita"],
             };
             string DelimitadorGO = Datos.Instance.diccionarioColeccionada.ElementAt(8).Key;
-            string[] ArregloOperaciones = Regex.Split(OperacionSintaxis.SintaxisEscrita,DelimitadorGO);
+            string[] ArregloOperaciones = Regex.Split(OperacionSintaxis.SintaxisEscrita, DelimitadorGO);
             for (int i = 0; i < ArregloOperaciones.Length; i++)//Se guarda en una linea
             {
-                ArregloOperaciones[i] = Regex.Replace(ArregloOperaciones[i], @"\r\n?|\n","").Trim();//Se concatena
+                ArregloOperaciones[i] = Regex.Replace(ArregloOperaciones[i], @"\r\n?|\n", "").Trim();//Se concatena
                 ArregloOperaciones[i] = Regex.Replace(ArregloOperaciones[i], "  ", " ").Trim();//Se quitan las lineas
             }
             for (int i = 0; i < ArregloOperaciones.Length; i++)
@@ -133,6 +133,11 @@ namespace ProyectoMicroSQL.Controllers
                 if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key))
                 {
                     //Crear Tabla   
+                    CrearTabla(ArregloOperaciones[i]);
+                }
+                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key))
+                {
+                    //Insertar en Tabla   
                     CrearTabla(ArregloOperaciones[i]);
                 }
             }
@@ -153,11 +158,11 @@ namespace ProyectoMicroSQL.Controllers
                 throw new System.InvalidOperationException("No contiene " + Datos.Instance.ListaAtributos.ElementAt(0));
             }
             SepararParentesis[1] = SepararParentesis[1].Trim();
-            if (!SepararParentesis[1][SepararParentesis[1].Length-1].Equals(')'))
+            if (!SepararParentesis[1][SepararParentesis[1].Length - 1].Equals(')'))
             {
                 throw new System.InvalidOperationException("No contiene parentesis de clausura");
             }
-            SepararParentesis[1] = SepararParentesis[1].Substring(0, SepararParentesis[1].Length - 2);
+            SepararParentesis[1] = SepararParentesis[1].Substring(0, SepararParentesis[1].Length - 1);
             string[] ValoresTabla = SepararParentesis[1].Split(',');
             if (ValoresTabla.Any(x => x.Trim() == ""))
             {
@@ -244,19 +249,19 @@ namespace ProyectoMicroSQL.Controllers
                 ArregloNombreColumnas[i] = ValoresTabla[i].Split(' ')[0].ToUpper();
                 ListaNombreColumna.Add(ValoresTabla[i].Split(' ')[0].ToUpper());
                 ListaTipoColumnas.Add(ValoresTabla[i].Split(' ')[1].ToUpper());
-                string[] ArregloListaNombreTablas=Datos.Instance.ListaTablasExistentes.ToArray();
+                string[] ArregloListaNombreTablas = Datos.Instance.ListaTablasExistentes.ToArray();
                 if (Datos.Instance.ListaTablasExistentes.Count() > 0)
                 {
                     for (int j = 0; j < ArregloListaNombreTablas.Length; j++)
                     {
-                        if (ArregloListaNombreTablas[i]==NombreTabla.ToUpper())
+                        if (ArregloListaNombreTablas[i] == NombreTabla.ToUpper())
                         {
                             throw new System.InvalidOperationException("El nombre " + NombreTabla + " no puede repetirse");
                         }
                     }
-                }                
+                }
             }
-            CrearArchivoTabla(ListaNombreColumna,ListaTipoColumnas,NombreTabla);
+            CrearArchivoTabla(ListaNombreColumna, ListaTipoColumnas, NombreTabla);
             CrearArbolDeTabla(NombreTabla);
         }
         public void CrearArchivoTabla(List<string> NombreColumnas, List<string> TipoColumnas, string Nombre)
@@ -266,7 +271,7 @@ namespace ProyectoMicroSQL.Controllers
             Escritor.WriteLine(Nombre);
             for (int i = 0; i < NombreColumnas.Count; i++)
             {
-                if (i==NombreColumnas.Count-1)
+                if (i == NombreColumnas.Count - 1)
                 {
                     Escritor.Write(NombreColumnas.ElementAt(i) + "|" + TipoColumnas.ElementAt(i));
                 }
@@ -283,6 +288,7 @@ namespace ProyectoMicroSQL.Controllers
             ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla> CrearArbol = new ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla>(@"C:\Users\allan\Documents\GitHub\ProyectoMicroSQL\ProyectoMicroSQL\microSQL\arboles\" + NombreArbol + ".arbolb", 7);
             CrearArbol.CerrarArchivo();
         }
+        
     }
 
 }
