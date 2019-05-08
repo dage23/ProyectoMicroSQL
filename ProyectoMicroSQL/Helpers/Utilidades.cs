@@ -16,6 +16,5 @@ namespace ProyectoMicroSQL.Helpers
         public List<List<object>> DatosParaMostrar { get; set; }
         public List<string> NombreColumnasMostrar { get; set; }
         public string NombreTabla { get; set; }
-
     }
 }

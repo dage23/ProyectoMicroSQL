@@ -701,6 +701,35 @@ namespace ProyectoMicroSQL.Controllers
 
             }
         }
+        #region  Drop
+        //-----------------------------Función de SQL que borra una tabla de MiniSQL-----------------------------
+        public void Drop(string Valor)
+        {
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "");//Quita la palabra reservada para la funciónn
+            if (Valor.Trim().Split(' ').Length > 1)//Se comprueba que se tenga solo el nombre de la tabla que se eliminará
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " debe de poseer el nombre de la tabla que se eliminará");
+            }
+            string[] NombreTabla = Datos.Instance.ListaTablasExistentes.ToArray();//Existencia de la tabla que se desea eliminar
+            bool ExistenciaTabla = false;
+            for (int i = 0; i < NombreTabla.Length; i++)
+            {
+                if (NombreTabla[i] == Valor.Trim().Split(' ')[0].ToUpper())
+                {
+                    ExistenciaTabla = true;
+                }
+            }
+            if (!ExistenciaTabla)
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key + " el nombre de la tabla no existe en el contexto actual");
+            }
+            //Elimina el archivo
+            File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + Valor.Trim().Split(' ')[0] + ".arbolb"));
+
+
+        }
+        #endregion
+
     }
 
 }
