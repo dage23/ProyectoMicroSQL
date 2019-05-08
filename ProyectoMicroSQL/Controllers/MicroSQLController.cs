@@ -176,7 +176,7 @@ namespace ProyectoMicroSQL.Controllers
             {
                 throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene parentesis de clausura");
             }
-            SepararParentesis[1] = SepararParentesis[1].Substring(0, SepararParentesis[1].Length - 2);
+            SepararParentesis[1] = SepararParentesis[1].Substring(0, SepararParentesis[1].Length - 1);
             string[] ValoresTabla = SepararParentesis[1].Split(',');
             if (ValoresTabla.Length < 2)
             {
@@ -297,14 +297,26 @@ namespace ProyectoMicroSQL.Controllers
             {
                 if (i == ListaNombreColumna.Count - 1)
                 {
-                    ValoresdeTabla += ListaNombreColumna[i] + ", " + ListaTipoColumnas[i];
+                    ValoresdeTabla += ListaNombreColumna[i];
                 }
                 else
                 {
-                    ValoresdeTabla += ListaNombreColumna[i] + ", " + ListaTipoColumnas[i] + "~~";
+                    ValoresdeTabla += ListaNombreColumna[i] + ", ";
                 }
             }
-            Datos.Instance.ListaTablaYValores.Add(new Listado_Tablas { NombreTabla = NombreTabla, ValoresTabla = ValoresdeTabla });
+            string TipoValoresTabla = "";
+            for (int i = 0; i < ListaTipoColumnas.Count; i++)
+            {
+                if (i == ListaTipoColumnas.Count - 1)
+                {
+                    TipoValoresTabla += ListaTipoColumnas[i];
+                }
+                else
+                {
+                    TipoValoresTabla += ListaTipoColumnas[i] + ", ";
+                }
+            }
+            Datos.Instance.ListaTablaYValores.Add(new Listado_Tablas { NombreTabla = NombreTabla, ValoresTabla = ValoresdeTabla, TipoValoresTabla= TipoValoresTabla });
 
         }
         //-------------------------------Crear archivo.tabla-----------
@@ -1323,6 +1335,11 @@ namespace ProyectoMicroSQL.Controllers
         {
             return View("DatosSQL");
         }
+        public RedirectResult RedirectToAspx()
+        {
+            return Redirect("/WebForm1.aspx");
+        }
+
         #endregion
     }
 }

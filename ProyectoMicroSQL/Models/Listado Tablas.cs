@@ -10,5 +10,6 @@ namespace ProyectoMicroSQL.Models
         
         public string NombreTabla { get; set; }
         public string ValoresTabla { get; set; }
+        public string TipoValoresTabla { get; set; }
     }
 }

@@ -40,5 +40,10 @@ namespace ProyectoMicroSQL
                 dataTable.Rows.Add(ActualFila);
             }
         }
+
+        protected void GridView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
