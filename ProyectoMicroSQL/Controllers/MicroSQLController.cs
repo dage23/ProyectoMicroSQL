@@ -162,45 +162,53 @@ namespace ProyectoMicroSQL.Controllers
             Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();
             string[] SepararParentesis = Valor.Split(new char[] { '(' }, 2);
             //-----------------------------------------Errores de sintaxis----------------------
+            NombreTabla = SepararParentesis[0].Trim();
             if (SepararParentesis.Length == 1)
             {
-                throw new System.InvalidOperationException("No contiene parentesis de apertura");
+                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key+" no contiene parentesis de apertura");
             }
-            NombreTabla = SepararParentesis[0].Trim();
             if (!Valor.Contains(Datos.Instance.ListaAtributos.ElementAt(0)))
             {
-                throw new System.InvalidOperationException("No contiene " + Datos.Instance.ListaAtributos.ElementAt(0));
+                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key+" no contiene " + Datos.Instance.ListaAtributos.ElementAt(0));
             }
             SepararParentesis[1] = SepararParentesis[1].Trim();
             if (!SepararParentesis[1][SepararParentesis[1].Length - 1].Equals(')'))
             {
-                throw new System.InvalidOperationException("No contiene parentesis de clausura");
+                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key+" no contiene parentesis de clausura");
             }
-            SepararParentesis[1] = SepararParentesis[1].Substring(0, SepararParentesis[1].Length - 1);
+            SepararParentesis[1] = SepararParentesis[1].Substring(0, SepararParentesis[1].Length - 2);
             string[] ValoresTabla = SepararParentesis[1].Split(',');
+            if (ValoresTabla.Length<2)
+            {
+                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no puede insertar solo 1 atributo");
+            }
             if (ValoresTabla.Any(x => x.Trim() == ""))
             {
-                throw new System.InvalidOperationException("Tiene error en las comas de separación de las columnas");
+                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key+" tiene error en las comas de separación de las columnas");
             }
             for (int i = 0; i < ValoresTabla.Length; i++)
             {
                 ValoresTabla[i] = ValoresTabla[i].Trim();
             }
             //-----------------------------Errores tipos de datos--------------------
+            //Mas de 3 varchar
             if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(1))).Count >= 3)
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(1));
             }
+            //Mas de 3 int
             if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(2))).Count >= 3)
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(2));
             }
+            //Mas de 3 datetime
             if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(3))).Count >= 3)
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(3));
             }
-
+            //--------------------------------Operaciones con Primary key---------------------------------
             var TamanoKey = Datos.Instance.ListaAtributos.ElementAt(0).Trim().Split(' ').Length;
+            //--------------------------------Errores--------------------------------------------------
             if (ValoresTabla[0].Split(' ').Length != 2 + TamanoKey)
             {
                 throw new System.InvalidOperationException(Datos.Instance.ListaAtributos.ElementAt(4) + " debe de contener 3 campos[NOMBRE TIPO LLAVE]");
@@ -214,12 +222,13 @@ namespace ProyectoMicroSQL.Controllers
                 ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(2) ||
                 ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(3))
             {
-                throw new System.InvalidOperationException("No puede ser un tipo de dato o un " + Datos.Instance.ListaAtributos.ElementAt(0));
+                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key+" utiliza un atributo no permitido, debe de ser tipo " + Datos.Instance.ListaAtributos.ElementAt(0));
             }
             if (ValoresTabla[0].Split(' ')[1] != Datos.Instance.ListaAtributos.ElementAt(2))
             {
-                throw new System.InvalidOperationException("Debe ser un tipo " + Datos.Instance.ListaAtributos.ElementAt(2));
+                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", el primer dato debe ser un tipo " + Datos.Instance.ListaAtributos.ElementAt(2));
             }
+            //--------------------------------------TIpo de llave primaria-------------------------------
             string LlavePrimaria = " ";
             for (int i = 2; i < ValoresTabla[0].Split(' ').Length; i++)
             {
@@ -228,7 +237,7 @@ namespace ProyectoMicroSQL.Controllers
             LlavePrimaria = LlavePrimaria.Trim();
             if (LlavePrimaria != Datos.Instance.ListaAtributos.ElementAt(0))
             {
-                throw new System.InvalidOperationException("Debe ser " + Datos.Instance.ListaAtributos.ElementAt(0));
+                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", el primer dato debe ser un " + Datos.Instance.ListaAtributos.ElementAt(0));
             }
             //----------------------------------------Creacion de archivos------------------------------
             List<string> ListaNombreColumna = new List<string>();
@@ -242,40 +251,42 @@ namespace ProyectoMicroSQL.Controllers
                 //--------------------------------------Errores de atributos--------------------
                 if (ValoresTabla[i].Split(' ').Length != 2)
                 {
-                    throw new System.InvalidOperationException("Los atributos que no son PRIMARY KEY no deben de tener mas de dos campos");
+                    throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " los atributos que no son PRIMARY KEY no deben de tener mas de dos campos");
                 }
+
                 if (ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(0) ||
                 ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(1) ||
                 ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(2) ||
                 ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(3))
                 {
-                    throw new System.InvalidOperationException("Los atributos que no son PRIMARY KEY deben contener el nombre en el campo 1");
+                    throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " los atributos que no son PRIMARY KEY deben contener el nombre en el campo 1");
                 }
                 if (ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(1) &&
                 ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(2) &&
                 ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(3))
                 {
-                    throw new System.InvalidOperationException("Los atributos que no son PRIMARY KEY deben contener el tipo en el campo 2");
+                    throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", los atributos que no son PRIMARY KEY deben contener el tipo en el campo 2");
                 }
                 if (ArregloNombreColumnas.Any(x => ValoresTabla[i].Split(' ')[0].ToUpper() == x))
                 {
-                    throw new System.InvalidOperationException("No se pueden repetir nombres de columnas");
+                    throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", no se pueden repetir nombres de columnas");
                 }
                 ArregloNombreColumnas[i] = ValoresTabla[i].Split(' ')[0].ToUpper();
                 ListaNombreColumna.Add(ValoresTabla[i].Split(' ')[0].ToUpper());
                 ListaTipoColumnas.Add(ValoresTabla[i].Split(' ')[1].ToUpper());
+            }
                 string[] ArregloListaNombreTablas = Datos.Instance.ListaTablasExistentes.ToArray();
                 if (Datos.Instance.ListaTablasExistentes.Count() > 0)
                 {
-                    for (int j = 0; j < ArregloListaNombreTablas.Length-1; j++)
+                    for (int i = 0; i < ArregloListaNombreTablas.Length; i++)
                     {
                         if (ArregloListaNombreTablas[i] == NombreTabla.ToUpper())
                         {
-                            throw new System.InvalidOperationException("El nombre " + NombreTabla + " no puede repetirse");
+                            throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", el nombre " + NombreTabla + " no puede repetirse");
                         }
                     }
                 }
-            }
+            
             //-------------------------------Crear archivo.tabla------------------
             CrearArchivoTabla(ListaNombreColumna, ListaTipoColumnas, NombreTabla);
             //-------------------------------Crear archivo.arbolb-----------------
