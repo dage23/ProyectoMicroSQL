@@ -767,6 +767,12 @@ namespace ProyectoMicroSQL.Controllers
             {
                 ExistenciaTabla = true;
             }
+<<<<<<< HEAD
+=======
+            //Elimina el archivo de Tabla & Arbol
+            System.IO.File.Delete(@"~/microSQL/tablas/" + Valor.Trim().Split(' ')[0] + ".tabla");
+            System.IO.File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + Valor.Trim().Split(' ')[0] + ".arbolb"));
+>>>>>>> 950ecf6117d8d4f29fb91782252630ff7a559135
         }
         if (!ExistenciaTabla)
         {
