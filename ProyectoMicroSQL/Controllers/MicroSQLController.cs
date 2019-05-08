@@ -727,36 +727,20 @@ namespace ProyectoMicroSQL.Controllers
                     ArbolCreadoArchivo.CloseStream();
                 }
             }
-<<<<<<< HEAD
-        }
-        #region  Drop
-        //-----------------------------Función de SQL que borra una tabla de MiniSQL-----------------------------
-        public void Drop(string Valor)
-        {
-            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();//Quita la palabra reservada para la funciónn
-            if (Valor.Trim().Split(' ').Length > 1)//Se comprueba que se tenga solo el nombre de la tabla que se eliminará
-            {
-                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " debe de poseer el nombre de la tabla que se eliminará");
-            }
-            string[] NombreTabla = Datos.Instance.ListaTablasExistentes.ToArray();//Existencia de la tabla que se desea eliminar
-            bool ExistenciaTabla = false;
-            for (int i = 0; i < NombreTabla.Length; i++)
-=======
             else
->>>>>>> 05856dcc6a8559607e5117f481ec39197418ac24
             {
                 //Dividimos por FROM
-                string[] InstruccionesSeparadas = Regex.Split(Instucciones,Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
-                if (InstruccionesSeparadas.Length==1)
+                string[] InstruccionesSeparadas = Regex.Split(Instucciones, Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
+                if (InstruccionesSeparadas.Length == 1)
                 {
-                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key+ " no contiene "+ Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
+                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " no contiene " + Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
                 }
-                if (InstruccionesSeparadas.Length>2)
+                if (InstruccionesSeparadas.Length > 2)
                 {
-                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " contiene " + Datos.Instance.diccionarioColeccionada.ElementAt(1).Key+" mas de una vez");
+                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " contiene " + Datos.Instance.diccionarioColeccionada.ElementAt(1).Key + " mas de una vez");
                 }
                 string[] ColumnasSoliccitadas = InstruccionesSeparadas[0].Trim().Split(',');
-                if (InstruccionesSeparadas[1].Trim().Split(' ').Length>1)
+                if (InstruccionesSeparadas[1].Trim().Split(' ').Length > 1)
                 {
 
                 }
@@ -765,35 +749,36 @@ namespace ProyectoMicroSQL.Controllers
             //-------------------------------select columa from metodo5----------------------------------
 
         }
-    }
-    //--------------------------------DROP--------------------------------------------
-    #region  Drop
-    //-----------------------------Función de SQL que borra una tabla de MiniSQL-----------------------------
-    public void DropTabla(string Valor)
-    {
-        Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "");//Quita la palabra reservada para la funciónn
-        if (Valor.Trim().Split(' ').Length > 1)//Se comprueba que se tenga solo el nombre de la tabla que se eliminará
+        //--------------------------------DROP--------------------------------------------
+        #region  Drop
+        //-----------------------------Función de SQL que borra una tabla de MiniSQL-----------------------------
+        public void DropTabla(string Valor)
         {
-            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " debe de poseer el nombre de la tabla que se eliminará");
-        }
-        string[] NombreTabla = Datos.Instance.ListaTablasExistentes.ToArray();//Existencia de la tabla que se desea eliminar
-        bool ExistenciaTabla = false;
-        for (int i = 0; i < NombreTabla.Length; i++)
-        {
-            if (NombreTabla[i] == Valor.Trim().Split(' ')[0].ToUpper())
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "");//Quita la palabra reservada para la funciónn
+            if (Valor.Trim().Split(' ').Length > 1)//Se comprueba que se tenga solo el nombre de la tabla que se eliminará
             {
-                ExistenciaTabla = true;
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " debe de poseer el nombre de la tabla que se eliminará");
             }
-<<<<<<< HEAD
-=======
+            string[] NombreTabla = Datos.Instance.ListaTablasExistentes.ToArray();//Existencia de la tabla que se desea eliminar
+            bool ExistenciaTabla = false;
+            for (int i = 0; i < NombreTabla.Length; i++)
+            {
+                if (NombreTabla[i] == Valor.Trim().Split(' ')[0].ToUpper())
+                {
+                    ExistenciaTabla = true;
+                }
+            }
+            if (!ExistenciaTabla)
+            {
+                throw new InvalidOperationException("El nombre de la tabla a eliminar no existe");
+            }
             //Elimina el archivo de Tabla & Arbol
-            System.IO.File.Delete(@"~/microSQL/tablas/" + Valor.Trim().Split(' ')[0] + ".tabla");
+            System.IO.File.Delete(Server.MapPath(@"~/microSQL/tablas/" + Valor.Trim().Split(' ')[0] + ".tabla"));
             System.IO.File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + Valor.Trim().Split(' ')[0] + ".arbolb"));
->>>>>>> 950ecf6117d8d4f29fb91782252630ff7a559135
-        }
-<<<<<<< HEAD
-        #endregion
 
+        }
+        #endregion
+        //--------------------------------DELETE------------------------------------------
         #region Eliminar
         public void Eliminar(string Valor)
         {
@@ -823,17 +808,10 @@ namespace ProyectoMicroSQL.Controllers
 
         }
         #endregion
-=======
-        if (!ExistenciaTabla)
-        {
-            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key + " el nombre de la tabla no existe en el contexto actual");
-        }
-        //Elimina el archivo
->>>>>>> 05856dcc6a8559607e5117f481ec39197418ac24
     }
-    #endregion
-
 }
+
+
 
 
 
