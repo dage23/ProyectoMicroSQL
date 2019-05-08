@@ -1,0 +1,34 @@
+﻿@model IEnumerable<ProyectoMicroSQL.Models.Listado_Tablas>
+
+@{
+    ViewBag.Title = "VerTablas";
+}
+
+<h2>VerTablas</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            Tabla
+        </th>
+        <th>
+            Atributos-Tipo
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.NombreTabla)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ValoresTabla)
+        </td>       
+    </tr>
+}
+
+</table>

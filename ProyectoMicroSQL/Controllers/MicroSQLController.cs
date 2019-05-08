@@ -135,7 +135,7 @@ namespace ProyectoMicroSQL.Controllers
                 if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key))
                 {
                     //Crear Tabla   
-                    CrearTablaArbol(ArregloOperaciones[i]);
+                    CrearTablaYArbol(ArregloOperaciones[i]);
                 }
                 if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key))
                 {
@@ -151,8 +151,12 @@ namespace ProyectoMicroSQL.Controllers
             }
             return View("DatosSQL");
         }
+        public ActionResult VerTablas()
+        {
+            return View(Datos.Instance.ListaTablaYValores);
+        }
         //-------------------------------CREATE TABLE--------------------------
-        private void CrearTablaArbol(string Valor)
+        private void CrearTablaYArbol(string Valor)
         {
             string NombreTabla = "";
             Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();
@@ -195,7 +199,7 @@ namespace ProyectoMicroSQL.Controllers
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(3));
             }
-           
+
             var TamanoKey = Datos.Instance.ListaAtributos.ElementAt(0).Trim().Split(' ').Length;
             if (ValoresTabla[0].Split(' ').Length != 2 + TamanoKey)
             {
@@ -263,7 +267,7 @@ namespace ProyectoMicroSQL.Controllers
                 string[] ArregloListaNombreTablas = Datos.Instance.ListaTablasExistentes.ToArray();
                 if (Datos.Instance.ListaTablasExistentes.Count() > 0)
                 {
-                    for (int j = 0; j < ArregloListaNombreTablas.Length; j++)
+                    for (int j = 0; j < ArregloListaNombreTablas.Length-1; j++)
                     {
                         if (ArregloListaNombreTablas[i] == NombreTabla.ToUpper())
                         {
@@ -276,6 +280,21 @@ namespace ProyectoMicroSQL.Controllers
             CrearArchivoTabla(ListaNombreColumna, ListaTipoColumnas, NombreTabla);
             //-------------------------------Crear archivo.arbolb-----------------
             CrearArbolDeTabla(NombreTabla);
+            //-------------------------------Agregar a lista----------------------
+            string ValoresdeTabla = "";
+            for (int i = 0; i < ListaNombreColumna.Count; i++)
+            {
+                if (i==ListaNombreColumna.Count-1)
+                {
+                    ValoresdeTabla += ListaNombreColumna[i] + ", " + ListaTipoColumnas[i];
+                }
+                else
+                {
+                    ValoresdeTabla += ListaNombreColumna[i] + ", " + ListaTipoColumnas[i]+"~~";
+                }
+            }
+            Datos.Instance.ListaTablaYValores.Add(new Listado_Tablas { NombreTabla = NombreTabla, ValoresTabla = ValoresdeTabla });
+
         }
         //-------------------------------Crear archivo.tabla-----------
         private void CrearArchivoTabla(List<string> NombreColumnas, List<string> TipoColumnas, string Nombre)
@@ -467,12 +486,12 @@ namespace ProyectoMicroSQL.Controllers
             Instucciones = Instucciones.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key, "").Trim();
             List<string> ColumnaEnArchivo;
             List<string> TipoDatoEnArchivo;
-            if (Instucciones.Trim().Split(' ')[0]=="*")
+            if (Instucciones.Trim().Split(' ')[0] == "*")
             {
                 //--------------------------------select*from metodo1---------------
                 if (Instucciones.Trim().Split(' ')[1] != Datos.Instance.diccionarioColeccionada.ElementAt(1).Key)
                 {
-                    throw new InvalidOperationException("Posee un error de sintaxis en el metodo "+ Datos.Instance.diccionarioColeccionada.ElementAt(0).Key);
+                    throw new InvalidOperationException("Posee un error de sintaxis en el metodo " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key);
                 }
                 string[] InstuccionesSeparadas = Regex.Split(Instucciones, Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
                 bool ExisteTabla = false;
@@ -487,14 +506,195 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 if (!ExisteTabla)
                 {
-                    throw new InvalidOperationException("En el comando "+ Datos.Instance.diccionarioColeccionada.ElementAt(0).Key+" declara una tabla inexistente");
+                    throw new InvalidOperationException("En el comando " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " declara una tabla inexistente");
                 }
                 //Posee escrito where
-                if (InstuccionesSeparadas[1].Trim)
+                if (InstuccionesSeparadas[1].Trim().Split(' ').Length > 1)
                 {
+                    //---------------------Errores sintaxis-------------------------
+                    if (InstuccionesSeparadas[1].Trim().Split(' ')[1] != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)
+                    {
+                        throw new InvalidOperationException("Posee un error de escritura con la funcion " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                    }
+                    string[] InstruccionesSeparadas2 = Regex.Split(InstuccionesSeparadas[1].Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                    InstruccionesSeparadas2[1] = InstruccionesSeparadas2[1].Trim();
 
+                    string[] InstruccionesSeparadas3 = Regex.Split(InstruccionesSeparadas2[1].Trim(), "=");
+                    if (InstruccionesSeparadas3.Length != 2)
+                    {
+                        throw new InvalidOperationException("El comando " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee error de escritura en condicion");
+                    }
+
+                    if (InstruccionesSeparadas3[1].Trim() == "")
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee un error en la condicion");
+                    }
+
+                    if (InstruccionesSeparadas3[0].Trim() == "")
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee un error en la condicion");
+                    }
+                    //----------------------Errores en Where------------------------
+                    string NombreColumnaBuscar = InstruccionesSeparadas3[0].Trim();
+                    int ConteoFinal = 0;
+                    int Contador = 0;
+                    bool EsVarChar = false;
+                    if (InstruccionesSeparadas3[1].Trim()[0] == '\'')
+                    {
+                        EsVarChar = true;
+                        for (int i = 0; i < InstruccionesSeparadas3[1].Trim().Length; i++)
+                        {
+                            if (InstruccionesSeparadas3[1].Trim()[i] == '\'')
+                            {
+                                Contador++;
+                                if (Contador > 1)
+                                {
+                                    ConteoFinal = i;
+                                    break;
+                                }
+                            }
+                            if (ConteoFinal < 2)
+                            {
+                                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " busca un dato null");
+                            }
+                            if (InstruccionesSeparadas3[1].Trim().Length != InstruccionesSeparadas3[1].Trim().Substring(0, ConteoFinal + 1).Length)
+                            {
+                                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee valores extras, debe de ser COLUMNA = DATO");
+                            }
+                            InstruccionesSeparadas3[1] = InstruccionesSeparadas3[1].Trim().Substring(0, ConteoFinal + 1);
+                        }
+                        string DatoABuscar = "";
+                        if (EsVarChar)
+                        {
+                            DatoABuscar = InstruccionesSeparadas3[1].Trim();
+                        }
+                        else
+                        {
+                            DatoABuscar = InstruccionesSeparadas3[1].Split(' ')[0];
+                        }
+                        string TipoDatoABuscar = "";
+                        //------------------------Existe Columna------------------
+                        FileStream ArchivoDeTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreDeTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                        StreamReader LectorTabla = new StreamReader(ArchivoDeTabla);
+                        ColumnaEnArchivo = new List<string>();
+                        TipoDatoEnArchivo = new List<string>();
+                        string TipoActualDato;
+                        LectorTabla.ReadLine();
+                        while ((TipoActualDato = LectorTabla.ReadLine()) != null)
+                        {
+                            ColumnaEnArchivo.Add(TipoActualDato.Split('|')[0]);
+                            TipoDatoEnArchivo.Add(TipoActualDato.Split('|')[1]);
+                        }
+                        ArchivoDeTabla.Close();
+                        bool ExisteColumna = false;
+                        string TipoColumnaEnArchivo = "";
+                        int IDColumna = -1;
+
+                        for (int i = 0; i < ColumnaEnArchivo.Count; i++)
+                        {
+                            if (ColumnaEnArchivo.ElementAt(i) == NombreColumnaBuscar.ToUpper())
+                            {
+                                TipoColumnaEnArchivo = TipoDatoEnArchivo.ElementAt(i);
+                                IDColumna = i;
+                                ExisteColumna = true;
+                            }
+                        }
+
+                        if (!ExisteColumna)
+                        {
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " utiliza el nombre de columna inexistente");
+                        }
+                        //---------------Existe Tipo Dato---------------------
+                        bool ExisteTipoDato = false;
+                        string TipodeDato = "";
+                        try
+                        {
+                            //Es int
+                            int PruebaConversionInt = int.Parse(DatoABuscar);
+                            TipodeDato = "INT";
+                            ExisteTipoDato = true;
+                        }
+                        catch (FormatException)
+                        {
+                            //No es int
+                        }
+                        //Datetime o varchar
+                        if (DatoABuscar.Length > 2 && !ExisteTipoDato)
+                        {
+                            if (DatoABuscar[0] == '\'' && DatoABuscar[DatoABuscar.Length - 1] == '\'')
+                            {
+                                DatoABuscar = DatoABuscar.Replace("'", "");
+                                try
+                                {
+                                    //Es datetime
+                                    DateTime PruebaConversionDatetime = DateTime.Parse(DatoABuscar);
+                                    TipodeDato = "DATETIME";
+                                    ExisteTipoDato = true;
+                                }
+                                catch (FormatException)
+                                {
+                                    //Es varchar
+                                    TipodeDato = "VARCHAR(100)";
+                                    ExisteTipoDato = true;
+                                    if (DatoABuscar.Length>100)
+                                    {
+                                        throw new FormatException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key+" desea buscar un valor VARCHAR de mas de 100 posiciones");
+                                    }
+                                }
+                            }
+                        }
+                        if (!ExisteTipoDato)
+                        {
+                            throw new FormatException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " desea buscar un tipo de atributo no reconocido");
+                        }
+                        if (TipodeDato != TipoColumnaEnArchivo)
+                        {
+                            throw new FormatException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " desea buscar un tipo de atributo que no coincide con la tabla");
+                        }
+                        if (TipodeDato != Datos.Instance.ListaAtributos.ElementAt(1))
+                        {
+                            if (InstruccionesSeparadas3[1].Trim().Split(' ').Length>1)
+                            {
+                                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee valores extras, debe de ser COLUMNA = DATO");
+                            }
+                        }
+                        //-------------------------------select*from where id metodo2-------------
+                        BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/"+NombreDeTabla+".arbolb"),8);
+                        List<BTreeDLL.Tabla> ListaDatos = CrearArbol.goOverTreeInOrder();
+                        List<BTreeDLL.Tabla> ListaParaTabla = new List<BTreeDLL.Tabla>();
+                        for (int i = 0; i < ListaDatos.Count; i++)
+                        {
+                            for (int j = 0; j < ListaDatos.ElementAt(i).Objetos.Count; j++)
+                            {
+                                if (NombreColumnaBuscar=="ID")
+                                {
+                                    if (ListaDatos.ElementAt(i).ID.ToString()==DatoABuscar.Trim())
+                                    {
+                                        ListaParaTabla.Add(ListaDatos.ElementAt(i));
+                                    }
+                                }
+                                else
+                                {
+                                    if (ListaDatos.ElementAt(i).Objetos.ElementAt(j).ToString()==DatoABuscar.Trim().Replace("'",""))
+                                    {
+                                        ListaParaTabla.Add(ListaDatos.ElementAt(i));
+                                    }
+                                }
+                            }
+                        }
+                        //aqui voy
+                        TablaAMostrar Tabla = new TablaAMostrar();
+                        Tabla.NombreColumnasArchivo = ColumnaEnArchivo;
+                        Tabla.NombreColumnasAMostrar = ColumnaEnArchivo;
+                        Tabla.ListaDatos = ListaParaTabla;
+                        Tabla.DatosAMostrarSelect();
+                        CrearArbol.CloseStream();
+                    }
+                    else
+                    {
+
+                    }
                 }
-                //-------------------------------select*from where id metodo2-------------
                 //-------------------------------select*from metodo 3---------------
                 //-------------------------------select columna from where metodo4-------------------
                 //-------------------------------select columa from metodo5----------------------------------
