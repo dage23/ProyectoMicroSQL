@@ -739,10 +739,138 @@ namespace ProyectoMicroSQL.Controllers
                 {
                     throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " contiene " + Datos.Instance.diccionarioColeccionada.ElementAt(1).Key + " mas de una vez");
                 }
-                string[] ColumnasSoliccitadas = InstruccionesSeparadas[0].Trim().Split(',');
+                string[] ColumnasSolicitadas = InstruccionesSeparadas[0].Trim().Split(',');
                 if (InstruccionesSeparadas[1].Trim().Split(' ').Length > 1)
                 {
+                    bool UlilizaWhere = false;
+                    string NombreTabla = InstruccionesSeparadas[1].Trim().Split(' ')[0];
 
+                    if (InstruccionesSeparadas[1].Trim().Split(' ')[1].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " debe de tener " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key + " despues");
+                    }
+                    string[] InstruccionesSeparadas2 = Regex.Split(InstruccionesSeparadas[1].Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                    InstruccionesSeparadas2[1] = InstruccionesSeparadas2[1].Trim();
+                    string[] InstruccionesSeparadas3 = Regex.Split(InstruccionesSeparadas2[1].Trim(), "=");
+                    if (InstruccionesSeparadas3.Length != 2)
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee un error de condicion.");
+                    }
+                    if (InstruccionesSeparadas3[1].Trim() == "")
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee error despues de =.");
+                    }
+                    if (InstruccionesSeparadas3[0].Trim() == "")
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee un error antes de =.");
+                    }
+                    string NombreColumna = InstruccionesSeparadas3[0].Trim();
+                    int ConteoFinal = 0;
+                    int Contador = 0;
+                    bool EsVarChar = false;
+                    if (InstruccionesSeparadas3[1].Trim()[0] == '\'')
+                    {
+                        EsVarChar = true;
+                        for (int i = 0; i < InstruccionesSeparadas3[1].Trim().Length; i++)
+                        {
+                            if (InstruccionesSeparadas3[1].Trim()[i] == '\'')
+                            {
+                                Contador++;
+                                if (Contador > 1)
+                                {
+                                    ConteoFinal = i; break;
+                                }
+                            }
+                        }
+                        if (ConteoFinal < 2)
+                        {
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " trata de buscar un valor nulo");
+                        }
+                        if (InstruccionesSeparadas3[1].Trim().Length != InstruccionesSeparadas3[1].Trim().Substring(0,ConteoFinal+1).Length)
+                        {
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee valores adicionales no permitidos");
+                        }
+                        InstruccionesSeparadas3[1] = InstruccionesSeparadas3[1].Trim().Substring(0, ConteoFinal + 1);
+                    }
+                    string dato = "";
+                    if (EsVarChar)
+                    {
+                        dato = InstruccionesSeparadas3[1].Trim();
+                    }
+                    else
+                    {
+                        dato = InstruccionesSeparadas3[1].Trim().Split(' ')[0];
+                    }
+                    string tipoDato = "";
+                    FileStream ArchivoDeTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    StreamReader LectorTabla = new StreamReader(ArchivoDeTabla);
+                    ColumnaEnArchivo = new List<string>();
+                    TipoDatoEnArchivo = new List<string>();
+                    string TipoActualDato;
+                    LectorTabla.ReadLine();
+                    while ((TipoActualDato = LectorTabla.ReadLine()) != null)
+                    {
+                        ColumnaEnArchivo.Add(TipoActualDato.Split('|')[0]);
+                        TipoDatoEnArchivo.Add(TipoActualDato.Split('|')[1]);
+                    }
+                    ArchivoDeTabla.Close();
+                    bool ExisteColumna = false;
+                    string TipoColumnaEnArchivo = "";
+                    for (int i = 0; i < ColumnaEnArchivo.Count; i++)
+                    {
+                        if (ColumnaEnArchivo.ElementAt(i)==NombreColumna.ToUpper())
+                        {
+                            TipoColumnaEnArchivo = TipoDatoEnArchivo.ElementAt(i);
+                            ExisteColumna = true;
+                        }
+                    }
+                    if (!ExisteColumna)
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", la columnaa buscar no existe");
+                    }
+
+                    bool ExisteTipoDato = false;
+                    tipoDato = "";
+                    try
+                    {
+                        //Es int
+                        int PruebaConversionInt = int.Parse(dato);
+                        tipoDato = "INT";
+                        ExisteTipoDato = true;
+                    }
+                    catch (FormatException)
+                    {
+                        //No es int
+                    }
+                    //Datetime o varchar
+                    if (dato.Length > 2 && !ExisteTipoDato)
+                    {
+                        if (dato[0] == '\'' && dato[dato.Length - 1] == '\'')
+                        {
+                            dato = dato.Replace("'", "");
+                            try
+                            {
+                                //Es datetime
+                                DateTime PruebaConversionDatetime = DateTime.Parse(dato);
+                                tipoDato = "DATETIME";
+                                ExisteTipoDato = true;
+                            }
+                            catch (FormatException)
+                            {
+                                //Es varchar
+                                tipoDato = "VARCHAR(100)";
+                                ExisteTipoDato = true;
+                                if (dato.Length > 100)
+                                {
+                                    throw new FormatException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " desea buscar un valor VARCHAR de mas de 100 posiciones");
+                                }
+                            }
+                        }
+                    }
+                    if (!ExisteTipoDato)
+                    {
+
+                    }
                 }
             }
             //-------------------------------select columna from where metodo4-------------------
