@@ -1062,13 +1062,35 @@ namespace ProyectoMicroSQL.Controllers
                             {
                                 case "VARCHAR(100)":
                                     DatoVarchar = DatoVarchar.Replace("'","");
-
+                                    if (j == ColumPos && DatosLista.ElementAt(i).Objetos.ElementAt(j).ToString().Replace("#", "") == DatoVarchar)
+                                    {
+                                        BTreeDLL.Tabla Eliminar_VARCHAR = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                        ArbolACrear.DeleteElement(Eliminar_VARCHAR);
+                                    }
+                                    break;
+                                case "INT":
+                                    if (j == ColumPos && Convert.ToInt32(DatosLista.ElementAt(i).Objetos.ElementAt(j)) == int.Parse(DatoVarchar))
+                                    {
+                                        BTreeDLL.Tabla Eliminar_INT = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                        ArbolACrear.DeleteElement(Eliminar_INT);
+                                    }
+                                    break;
+                                case "DATETIME":
+                                    BTreeDLL.Tabla Eliminar_DATETIME = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                    ArbolACrear.DeleteElement(Eliminar_DATETIME);
+                                    break;
                             }
                         }
                     }
                 }
+                ArbolACrear.CloseStream();
             }
-
+            else//Se eliminan todos los datos, no tiene WHERE
+            {
+                System.IO.File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"));
+                BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolCrear = new BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), 8);
+                ArbolCrear.CloseStream();
+            }
         }
         #endregion
 
