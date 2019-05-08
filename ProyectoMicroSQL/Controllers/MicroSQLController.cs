@@ -8,9 +8,8 @@ using System.Text.RegularExpressions;
 using System.Dynamic;
 using ProyectoMicroSQL.Models;
 using ProyectoMicroSQL.Controllers;
-using ArbolBDLL;
-using Trees_ED;
-using Tabla = ArbolBDLL.Tabla;
+using BTreeDLL;
+using Tabla = BTreeDLL.Tabla;
 
 namespace ProyectoMicroSQL.Controllers
 {
@@ -25,6 +24,7 @@ namespace ProyectoMicroSQL.Controllers
         {
             return RedirectToAction("ConfiguracionDiccionarioManual");
         }
+        //--------------------------------IMPORTAR ARCHIVO QUE ESCOGE USUARIO-------------------------
         [HttpPost]
         public ActionResult ImportarArchivo(HttpPostedFileBase Post)
         {
@@ -58,6 +58,7 @@ namespace ProyectoMicroSQL.Controllers
         {
             return View();
         }
+        //-------------------------------------------OBTENER CAMPOS ESCRITOS POR EL USUARIO---------------------------------------------------
         [HttpPost]
         public ActionResult ConfiguracionDiccionarioManual(FormCollection collection)
         {
@@ -85,7 +86,7 @@ namespace ProyectoMicroSQL.Controllers
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionGo, "GO");
             return RedirectToAction("IngresarSQL");
         }
-
+        //--------------------------------------------------------------IMPORTAR AUTOMATICAMENTE LAS PALABRAS RESERVADAS---------------------------------
         public ActionResult ConfiguracionDiccionarioAuto()
         {
             string csvData = System.IO.File.ReadAllText(Server.MapPath(@"~/MicroSQL/microSQL.ini"));
@@ -114,6 +115,7 @@ namespace ProyectoMicroSQL.Controllers
         {
             return View("DatosSQL");
         }
+        //-------------------------------------------------ACCEDER A INSTRUCCIONES DE USUARIO------------------------------------
         [HttpPost]
         public ActionResult Data(FormCollection Sintaxis)
         {
@@ -140,14 +142,22 @@ namespace ProyectoMicroSQL.Controllers
                     //Insertar en Tabla   
                     InsertarEnTablaArbol(ArregloOperaciones[i]);
                 }
+                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key))
+                {
+                    //Seleccionar de Tabla   
+                    SeleccionarDatosParaMostrar(ArregloOperaciones[i]);
+                }
+
             }
             return View("DatosSQL");
         }
+        //-------------------------------CREATE TABLE--------------------------
         private void CrearTablaArbol(string Valor)
         {
             string NombreTabla = "";
             Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();
             string[] SepararParentesis = Valor.Split(new char[] { '(' }, 2);
+            //-----------------------------------------Errores de sintaxis----------------------
             if (SepararParentesis.Length == 1)
             {
                 throw new System.InvalidOperationException("No contiene parentesis de apertura");
@@ -172,7 +182,7 @@ namespace ProyectoMicroSQL.Controllers
             {
                 ValoresTabla[i] = ValoresTabla[i].Trim();
             }
-
+            //-----------------------------Errores tipos de datos--------------------
             if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(1))).Count >= 3)
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(1));
@@ -185,7 +195,7 @@ namespace ProyectoMicroSQL.Controllers
             {
                 throw new System.InvalidOperationException("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(3));
             }
-
+           
             var TamanoKey = Datos.Instance.ListaAtributos.ElementAt(0).Trim().Split(' ').Length;
             if (ValoresTabla[0].Split(' ').Length != 2 + TamanoKey)
             {
@@ -216,7 +226,7 @@ namespace ProyectoMicroSQL.Controllers
             {
                 throw new System.InvalidOperationException("Debe ser " + Datos.Instance.ListaAtributos.ElementAt(0));
             }
-
+            //----------------------------------------Creacion de archivos------------------------------
             List<string> ListaNombreColumna = new List<string>();
             List<string> ListaTipoColumnas = new List<string>();
             string[] ArregloNombreColumnas = new string[9];
@@ -225,6 +235,7 @@ namespace ProyectoMicroSQL.Controllers
             ListaTipoColumnas.Add("INT");
             for (int i = 1; i < ValoresTabla.Length; i++)
             {
+                //--------------------------------------Errores de atributos--------------------
                 if (ValoresTabla[i].Split(' ').Length != 2)
                 {
                     throw new System.InvalidOperationException("Los atributos que no son PRIMARY KEY no deben de tener mas de dos campos");
@@ -261,9 +272,12 @@ namespace ProyectoMicroSQL.Controllers
                     }
                 }
             }
+            //-------------------------------Crear archivo.tabla------------------
             CrearArchivoTabla(ListaNombreColumna, ListaTipoColumnas, NombreTabla);
+            //-------------------------------Crear archivo.arbolb-----------------
             CrearArbolDeTabla(NombreTabla);
         }
+        //-------------------------------Crear archivo.tabla-----------
         private void CrearArchivoTabla(List<string> NombreColumnas, List<string> TipoColumnas, string Nombre)
         {
             FileStream ArchivoTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + Nombre + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -284,11 +298,13 @@ namespace ProyectoMicroSQL.Controllers
             Escritor.Flush();
             ArchivoTabla.Close();
         }
+        //-------------------------------Crear archivo.arbolb-----------
         private void CrearArbolDeTabla(string NombreArbol)
         {
-            ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla> CrearArbol = new ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreArbol + ".arbolb"), 7);
-            CrearArbol.CerrarArchivo();
+            BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreArbol + ".arbolb"), 8);
+            CrearArbol.CloseStream();
         }
+        //-------------------------------INSERT INTO----------------------------------------
         private void InsertarEnTablaArbol(string Valor)
         {
             Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key, "").Trim();
@@ -402,7 +418,7 @@ namespace ProyectoMicroSQL.Controllers
                         ArregloDAtosInsertar[i] = ArregloDAtosInsertar[i].Replace("'", "");
                         if (ArregloDAtosInsertar[i].Trim().Length == 0)
                         {
-                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key+" no permite ingresar datos nulos");
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " no permite ingresar datos nulos");
                         }
                         try
                         {
@@ -417,9 +433,9 @@ namespace ProyectoMicroSQL.Controllers
                             //convertir varchar(100)
                             TipoDatoInsertar = "VARCHAR(100)";
                             TipoDatoExiste = true;
-                            if (ArregloDAtosInsertar[i].Length>100)
+                            if (ArregloDAtosInsertar[i].Length > 100)
                             {
-                                throw new InvalidOperationException("En "+Datos.Instance.diccionarioColeccionada.ElementAt(6).Key+" no puedes insertar VARCHAR mayores a 100");
+                                throw new InvalidOperationException("En " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " no puedes insertar VARCHAR mayores a 100");
                             }
                             ListaObjetosAInsertar.Add(ArregloDAtosInsertar[i]);
                         }
@@ -427,7 +443,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 if (!TipoDatoExiste)
                 {
-                    throw new InvalidOperationException("En "+Datos.Instance.diccionarioColeccionada.ElementAt(6).Key+" no se reconoce un tipo de dato a insertar");
+                    throw new InvalidOperationException("En " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " no se reconoce un tipo de dato a insertar");
                 }
                 if (TipoDatoInsertar != TipoEnArchivo.ElementAt(i))
                 {
@@ -435,11 +451,55 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             //Si todo esta bien
-            ArbolBDLL.Tabla TablaAInsertarEnArbol = new ArbolBDLL.Tabla(IDInsertar,ListaObjetosAInsertar);
-            ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla> ArbolACrear = new ArbolB<string, ArbolBDLL.Tabla>(Server.MapPath(@"~/microSQL/arboles/"+NombreTablaInsertar+".arbolb"),7);
+            BTreeDLL.Tabla TablaAInsertarEnArbol = new BTreeDLL.Tabla(IDInsertar, ListaObjetosAInsertar);
+            BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolACrear = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreTablaInsertar + ".arbolb"), 8);
 
-            ArbolACrear.AgregarElemento(TablaAInsertarEnArbol);
-            ArbolACrear.CerrarArchivo();
+            ArbolACrear.AddElement(TablaAInsertarEnArbol);
+            ArbolACrear.CloseStream();
+        }
+        //-------------------------------SELECT-------------------------------------------
+        private void SeleccionarDatosParaMostrar(string Instucciones)
+        {
+            if (!Instucciones.Contains(Datos.Instance.diccionarioColeccionada.ElementAt(1).Key))
+            {
+                throw new InvalidOperationException("El metodo " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " no contiene" + Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
+            }
+            Instucciones = Instucciones.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key, "").Trim();
+            List<string> ColumnaEnArchivo;
+            List<string> TipoDatoEnArchivo;
+            if (Instucciones.Trim().Split(' ')[0]=="*")
+            {
+                //--------------------------------select*from metodo1---------------
+                if (Instucciones.Trim().Split(' ')[1] != Datos.Instance.diccionarioColeccionada.ElementAt(1).Key)
+                {
+                    throw new InvalidOperationException("Posee un error de sintaxis en el metodo "+ Datos.Instance.diccionarioColeccionada.ElementAt(0).Key);
+                }
+                string[] InstuccionesSeparadas = Regex.Split(Instucciones, Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
+                bool ExisteTabla = false;
+                string NombreDeTabla = InstuccionesSeparadas[1].Trim().Split(' ')[0];
+                for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count; i++)
+                {
+                    if (Datos.Instance.ListaTablasExistentes[i] == NombreDeTabla.ToUpper())
+                    {
+                        ExisteTabla = true;
+                        break;
+                    }
+                }
+                if (!ExisteTabla)
+                {
+                    throw new InvalidOperationException("En el comando "+ Datos.Instance.diccionarioColeccionada.ElementAt(0).Key+" declara una tabla inexistente");
+                }
+                //Posee escrito where
+                if (InstuccionesSeparadas[1].Trim)
+                {
+
+                }
+                //-------------------------------select*from where id metodo2-------------
+                //-------------------------------select*from metodo 3---------------
+                //-------------------------------select columna from where metodo4-------------------
+                //-------------------------------select columa from metodo5----------------------------------
+
+            }
         }
     }
 
