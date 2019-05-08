@@ -133,17 +133,17 @@ namespace ProyectoMicroSQL.Controllers
                 if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key))
                 {
                     //Crear Tabla   
-                    CrearTabla(ArregloOperaciones[i]);
+                    CrearTablaArbol(ArregloOperaciones[i]);
                 }
                 if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key))
                 {
                     //Insertar en Tabla   
-                    CrearTabla(ArregloOperaciones[i]);
+                    InsertarEnTablaArbol(ArregloOperaciones[i]);
                 }
             }
             return View("DatosSQL");
         }
-        public void CrearTabla(string Valor)
+        private void CrearTablaArbol(string Valor)
         {
             string NombreTabla = "";
             Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();
@@ -264,9 +264,9 @@ namespace ProyectoMicroSQL.Controllers
             CrearArchivoTabla(ListaNombreColumna, ListaTipoColumnas, NombreTabla);
             CrearArbolDeTabla(NombreTabla);
         }
-        public void CrearArchivoTabla(List<string> NombreColumnas, List<string> TipoColumnas, string Nombre)
+        private void CrearArchivoTabla(List<string> NombreColumnas, List<string> TipoColumnas, string Nombre)
         {
-            FileStream ArchivoTabla = new FileStream(@"C:\Users\allan\Documents\GitHub\ProyectoMicroSQL\ProyectoMicroSQL\microSQL\tablas\" + Nombre + ".tabla", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            FileStream ArchivoTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + Nombre + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
             StreamWriter Escritor = new StreamWriter(ArchivoTabla);
             Escritor.WriteLine(Nombre);
             for (int i = 0; i < NombreColumnas.Count; i++)
@@ -280,22 +280,170 @@ namespace ProyectoMicroSQL.Controllers
                     Escritor.WriteLine(NombreColumnas.ElementAt(i) + "|" + TipoColumnas.ElementAt(i));
                 }
             }
+            Datos.Instance.ListaTablasExistentes.Add(Nombre);
             Escritor.Flush();
             ArchivoTabla.Close();
         }
-        public void CrearArbolDeTabla(string NombreArbol)
+        private void CrearArbolDeTabla(string NombreArbol)
         {
-            ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla> CrearArbol = new ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla>(@"C:\Users\allan\Documents\GitHub\ProyectoMicroSQL\ProyectoMicroSQL\microSQL\arboles\" + NombreArbol + ".arbolb", 7);
+            ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla> CrearArbol = new ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreArbol + ".arbolb"), 7);
             CrearArbol.CerrarArchivo();
         }
-        
+        private void InsertarEnTablaArbol(string Valor)
+        {
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key, "").Trim();
+            if (Valor.Count(x => x == '(') != 2 || Valor.Count(y => y == ')') != 2)
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " necesitas revisar la sintaxis de tu codigo (PARENTESIS)");
+            }
+            string[] SeparadorComas = Valor.Split(new char[] { '(' }, 2);
+            SeparadorComas[0] = SeparadorComas[0].Trim();
+            if (SeparadorComas[0].Split(' ').Length > 1)
+            {
+                throw new InvalidOperationException("El nombre de la tabla no puede ser mayor de dos campos");
+            }
+            string NombreTablaInsertar = SeparadorComas[0];
+            bool TablaEncontradaEnLista = false;
+            for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count(); i++)
+            {
+                if ((NombreTablaInsertar.ToUpper() == Datos.Instance.ListaTablasExistentes[i]))
+                {
+                    TablaEncontradaEnLista = true;
+                    break;
+                }
+            }
+            if (!TablaEncontradaEnLista)
+            {
+                throw new InvalidOperationException("El nombre " + NombreTablaInsertar + " no existe en ninguna tabla");
+            }
+            FileStream TablaEnArhivo = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTablaInsertar + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            StreamReader Lector = new StreamReader(TablaEnArhivo);
+            List<string> ColumnaEnArchivo = new List<string>();
+            List<string> TipoEnArchivo = new List<string>();
+            string TipoActual;
+            Lector.ReadLine();
+            while ((TipoActual = Lector.ReadLine()) != null)
+            {
+                ColumnaEnArchivo.Add(TipoActual.Split('|')[0]);
+                TipoEnArchivo.Add(TipoActual.Split('|')[1]);
+            }
+            TablaEnArhivo.Close();
+
+            string[] SepararPorPrimerParentesis = SeparadorComas[1].Trim().Split(new char[] { ')' }, 2);
+            if (SepararPorPrimerParentesis[0].Trim().Split(',').Length != ColumnaEnArchivo.Count)
+            {
+                throw new InvalidOperationException("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + ", el numero de atributos de atributos no concuerda con los de la tabla");
+            }
+
+            string[] ColumnaInstruccion = new string[ColumnaEnArchivo.Count];
+            ColumnaInstruccion = SepararPorPrimerParentesis[0].Trim().Split(',');
+
+            for (int i = 0; i < ColumnaInstruccion.Length; i++)
+            {
+                if (ColumnaInstruccion[i].Trim().ToUpper() != ColumnaEnArchivo.ElementAt(i))
+                {
+                    throw new InvalidOperationException("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + ", no coinciden los atributos de la tabla con los almacenados");
+                }
+            }
+
+            string[] SepararPorSegundoParentesis = SepararPorPrimerParentesis[1].Trim().Split(new char[] { '(' }, 2);
+            if (SepararPorSegundoParentesis[0].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(7).Key)
+            {
+                throw new InvalidOperationException("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + "no posee" + Datos.Instance.diccionarioColeccionada.ElementAt(7).Key);
+            }
+
+            string[] SepararPorTercerParentesis = SepararPorSegundoParentesis[1].Trim().Split(new char[] { ')' }, 2);
+            if (SepararPorTercerParentesis[1].Trim() != "")
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " tiene un error en los parentesis");
+            }
+
+            if (SepararPorTercerParentesis[0].Trim().Split(',').Length != TipoEnArchivo.Count)
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " no introduce la cantidad de valores requeridos");
+            }
+
+
+            List<object> ListaObjetosAInsertar = new List<object>();
+            string TipoDatoInsertar = "";
+            int IDInsertar = 0;
+            bool TipoDatoExiste = false;
+
+            string[] ArregloDAtosInsertar = SepararPorTercerParentesis[0].Trim().Split(',');
+            for (int i = 0; i < ArregloDAtosInsertar.Length; i++)
+            {
+                TipoDatoExiste = false;
+                ArregloDAtosInsertar[i] = ArregloDAtosInsertar[i].Trim();
+                TipoDatoInsertar = "";
+                try
+                {
+                    //Convertir int
+                    int PruebaConvertirInt = int.Parse(ArregloDAtosInsertar[i]);
+                    TipoDatoInsertar = "INT";
+                    TipoDatoExiste = true;
+                    if (i == 0)
+                    {
+                        IDInsertar = PruebaConvertirInt;
+                    }
+                    else
+                    {
+                        ListaObjetosAInsertar.Add(PruebaConvertirInt);
+                    }
+                }
+                catch (FormatException)
+                {
+                    //No es int
+                }
+
+                if (ArregloDAtosInsertar[i].Length > 2 && !TipoDatoExiste)
+                {
+                    if (ArregloDAtosInsertar[i][0] == '\'' && ArregloDAtosInsertar[i][ArregloDAtosInsertar[i].Length - 1] == '\'')
+                    {
+                        ArregloDAtosInsertar[i] = ArregloDAtosInsertar[i].Replace("'", "");
+                        if (ArregloDAtosInsertar[i].Trim().Length == 0)
+                        {
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key+" no permite ingresar datos nulos");
+                        }
+                        try
+                        {
+                            //Convertir datetime
+                            DateTime PruebaConvertirDateTime = DateTime.Parse(ArregloDAtosInsertar[i]);
+                            ListaObjetosAInsertar.Add(PruebaConvertirDateTime);
+                            TipoDatoInsertar = "DATETIME";
+                            TipoDatoExiste = true;
+                        }
+                        catch (FormatException)
+                        {
+                            //convertir varchar(100)
+                            TipoDatoInsertar = "VARCHAR(100)";
+                            TipoDatoExiste = true;
+                            if (ArregloDAtosInsertar[i].Length>100)
+                            {
+                                throw new InvalidOperationException("En "+Datos.Instance.diccionarioColeccionada.ElementAt(6).Key+" no puedes insertar VARCHAR mayores a 100");
+                            }
+                            ListaObjetosAInsertar.Add(ArregloDAtosInsertar[i]);
+                        }
+                    }
+                }
+                if (!TipoDatoExiste)
+                {
+                    throw new InvalidOperationException("En "+Datos.Instance.diccionarioColeccionada.ElementAt(6).Key+" no se reconoce un tipo de dato a insertar");
+                }
+                if (TipoDatoInsertar != TipoEnArchivo.ElementAt(i))
+                {
+                    throw new InvalidOperationException("En " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + ", hay un campo que no concuerda con la tabla");
+                }
+            }
+            //Si todo esta bien
+            ArbolBDLL.Tabla TablaAInsertarEnArbol = new ArbolBDLL.Tabla(IDInsertar,ListaObjetosAInsertar);
+            ArbolBDLL.ArbolB<string, ArbolBDLL.Tabla> ArbolACrear = new ArbolB<string, ArbolBDLL.Tabla>(Server.MapPath(@"~/microSQL/arboles/"+NombreTablaInsertar+".arbolb"),7);
+
+            ArbolACrear.AgregarElemento(TablaAInsertarEnArbol);
+            ArbolACrear.CerrarArchivo();
+        }
     }
 
 }
-//public void Insertar(string [] listaComandos)
-//{
-//    //Logic here...
-//    return;
-//}
+
 
 
