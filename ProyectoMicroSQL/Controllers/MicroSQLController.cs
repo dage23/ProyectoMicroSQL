@@ -16,10 +16,7 @@ namespace ProyectoMicroSQL.Controllers
 {
     public class MicroSQLController : Controller
     {
-        public ActionResult Menu()
-        {
-            return View();
-        }
+
         #region Diccionarios
         public ActionResult Configuracion()
         {
@@ -109,14 +106,8 @@ namespace ProyectoMicroSQL.Controllers
             return RedirectToAction("Menu");
         }
         #endregion
-        public ActionResult IngresarSQL()
-        {
-            return RedirectToAction("Data");
-        }
-        public ActionResult Data()
-        {
-            return View("DatosSQL");
-        }
+
+        #region INSTRUCCIONES USUARIO
         //-------------------------------------------------ACCEDER A INSTRUCCIONES DE USUARIO------------------------------------
         [HttpPost]
         public ActionResult Data(FormCollection Sintaxis)
@@ -149,15 +140,22 @@ namespace ProyectoMicroSQL.Controllers
                     //Seleccionar de Tabla   
                     SeleccionarDatosParaMostrar(ArregloOperaciones[i]);
                 }
-
+                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key))
+                {
+                    //Eliminar elemento
+                    Eliminar(ArregloOperaciones[i]);
+                }
+                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key))
+                {
+                    //Eliminar Archivo Tabla
+                    DropTabla(ArregloOperaciones[i]);
+                }      
             }
             return View("DatosSQL");
         }
-        public ActionResult VerTablas()
-        {
-            return View(Datos.Instance.ListaTablaYValores);
-        }
-        //-------------------------------CREATE TABLE--------------------------
+        #endregion
+
+        #region CREATE
         private void CrearTablaYArbol(string Valor)
         {
             string NombreTabla = "";
@@ -336,6 +334,9 @@ namespace ProyectoMicroSQL.Controllers
             BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreArbol + ".arbolb"), 8);
             CrearArbol.CloseStream();
         }
+        #endregion
+
+        #region INSERT
         //-------------------------------INSERT INTO----------------------------------------
         private void InsertarEnTablaArbol(string Valor)
         {
@@ -489,6 +490,9 @@ namespace ProyectoMicroSQL.Controllers
             ArbolACrear.AddElement(TablaAInsertarEnArbol);
             ArbolACrear.CloseStream();
         }
+        #endregion
+
+        #region SELECT
         //-------------------------------SELECT-------------------------------------------
         private void SeleccionarDatosParaMostrar(string Instucciones)
         {
@@ -1032,15 +1036,16 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
         }
-        //--------------------------------DROP--------------------------------------------
+        #endregion
+
         #region  Drop
         //-----------------------------Función de SQL que borra una tabla de MiniSQL-----------------------------
         public void DropTabla(string Valor)
         {
-            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "");//Quita la palabra reservada para la funciónn
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key, "");//Quita la palabra reservada para la funciónn
             if (Valor.Trim().Split(' ').Length > 1)//Se comprueba que se tenga solo el nombre de la tabla que se eliminará
             {
-                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " debe de poseer el nombre de la tabla que se eliminará");
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key + " debe de poseer el nombre de la tabla que se eliminará");
             }
             string[] NombreTabla = Datos.Instance.ListaTablasExistentes.ToArray();//Existencia de la tabla que se desea eliminar
             bool ExistenciaTabla = false;
@@ -1072,11 +1077,11 @@ namespace ProyectoMicroSQL.Controllers
 
         }
         #endregion
-        //--------------------------------DELETE------------------------------------------
+
         #region Eliminar
         public void Eliminar(string Valor)
         {
-            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();//Eliminar la palabra reservada para la acción
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key, "").Trim();//Eliminar la palabra reservada para la acción
             if (Valor.Split(' ').Length < 2)//Comprueba que tenga almenos 2 campos
             {
                 throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " está incompleto");
@@ -1301,6 +1306,22 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             return tipoDato;
+        }
+        public ActionResult Menu()
+        {
+            return View();
+        }
+        public ActionResult VerTablas()
+        {
+            return View(Datos.Instance.ListaTablaYValores);
+        }
+        public ActionResult IngresarSQL()
+        {
+            return RedirectToAction("Data");
+        }
+        public ActionResult Data()
+        {
+            return View("DatosSQL");
         }
         #endregion
     }
