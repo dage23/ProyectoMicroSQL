@@ -900,7 +900,18 @@ namespace ProyectoMicroSQL.Controllers
             {
                 throw new InvalidOperationException("El nombre de la tabla a eliminar no existe");
             }
-            //Elimina el archivo de Tabla & Arbol
+            //Elimina el archivo de Lista, Tabla & Árbol
+            for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count; i++)
+            {
+                if (Datos.Instance.ListaTablasExistentes.ElementAt(i) == Valor.Trim().Split(' ')[0].ToUpper())
+                {
+                    Datos.Instance.ListaTablasExistentes.Remove(NombreTabla[i]);
+                }
+                if (Datos.Instance.ListaTablaYValores.ElementAt(i).NombreTabla == Valor.Trim().Split(' ')[0].ToUpper())
+                {
+                    Datos.Instance.ListaTablaYValores.RemoveAt(i);
+                }
+            }
             System.IO.File.Delete(Server.MapPath(@"~/microSQL/tablas/" + Valor.Trim().Split(' ')[0] + ".tabla"));
             System.IO.File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + Valor.Trim().Split(' ')[0] + ".arbolb"));
 
