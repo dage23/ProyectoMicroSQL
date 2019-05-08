@@ -735,8 +735,7 @@ namespace ProyectoMicroSQL.Controllers
                 throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key + " el nombre de la tabla no existe en el contexto actual");
             }
             //Elimina el archivo
-            File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + Valor.Trim().Split(' ')[0] + ".arbolb"));
-
+            //FileStream ArchivoDeTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + Valor.Trim().Split(' ')[0] + ".tabla"), FileOptions.);
 
         }
         #endregion
