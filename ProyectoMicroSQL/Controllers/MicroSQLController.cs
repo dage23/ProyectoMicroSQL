@@ -15,11 +15,11 @@ namespace ProyectoMicroSQL.Controllers
 {
     public class MicroSQLController : Controller
     {
-
         public ActionResult Menu()
         {
             return View();
         }
+        #region Diccionarios
         public ActionResult Configuracion()
         {
             return RedirectToAction("ConfiguracionDiccionarioManual");
@@ -107,6 +107,7 @@ namespace ProyectoMicroSQL.Controllers
             Datos.Instance.ListaAtributos.Add("DATETIME");
             return RedirectToAction("Menu");
         }
+        #endregion
         public ActionResult IngresarSQL()
         {
             return RedirectToAction("Data");
@@ -716,7 +717,7 @@ namespace ProyectoMicroSQL.Controllers
         //-----------------------------Función de SQL que borra una tabla de MiniSQL-----------------------------
         public void Drop(string Valor)
         {
-            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "");//Quita la palabra reservada para la funciónn
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();//Quita la palabra reservada para la funciónn
             if (Valor.Trim().Split(' ').Length > 1)//Se comprueba que se tenga solo el nombre de la tabla que se eliminará
             {
                 throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " debe de poseer el nombre de la tabla que se eliminará");
@@ -740,6 +741,35 @@ namespace ProyectoMicroSQL.Controllers
         }
         #endregion
 
+        #region Eliminar
+        public void Eliminar(string Valor)
+        {
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();//Eliminar la palabra reservada para la acción
+            if (Valor.Split(' ').Length < 2)//Comprueba que tenga almenos 2 campos
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " está incompleto");
+            }
+            if (Valor.Split(' ')[0].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(1).Key)//Sintaxis erronea o no completa
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " sintaxis incorrecta o incompleta");
+            }
+            string NombreTabla = Valor.Split(' ')[1].Trim();
+            string[] Tablas = Datos.Instance.ListaTablasExistentes.ToArray();
+            bool ExistenciaTabla = false;//Verificar que la tabla exista
+            for (int i = 0; i < Tablas.Length; i++)
+            {
+                if (Tablas[i] == NombreTabla)
+                {
+                    ExistenciaTabla = true;
+                }
+            }
+            if (!ExistenciaTabla)
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " la tabla no existe");
+            }
+
+        }
+        #endregion
     }
 
 }
