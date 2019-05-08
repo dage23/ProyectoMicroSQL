@@ -805,7 +805,186 @@ namespace ProyectoMicroSQL.Controllers
             {
                 throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " la tabla no existe");
             }
+            if (Valor.Split(' ').Length < 2)//Se comprueba si contiene WHERE
+            {
+                if (Valor.Split(' ')[2] != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)//Cuando tenga
+                {
+                    throw new InvalidOperationException("Despues de "+Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " debe de ir " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                }
+            }
+            string[] DivValor2 = Regex.Split(Valor.Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+            DivValor2[1] = DivValor2[1].Trim();
 
+            //---------------------------Posibles errores de sintaxis---------------------------
+            string[] DivValor3 = Regex.Split(DivValor2[1].Trim(), "=");//ID=1
+            if (DivValor3.Length != 2)
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " error en la condición");
+            }
+            if (DivValor3[0].Trim() == "")
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " no hay nada del lado izquierdo a la igualación");
+            }
+            if (DivValor3[1].Trim() == "")
+            {
+                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " no hay nada del lado derecho a la igualación");
+            }
+
+            string Columna = DivValor3[0].Trim();
+            int Final = 0;
+            int Conteo = 0;
+            bool VarChar = false;
+            if (DivValor3[1].Trim()[0] == '\'')
+            {
+                VarChar = true;
+                for (int i = 0; i < DivValor3[1].Trim().Length; i++)
+                {
+                    Conteo++;
+                    if (Conteo > 1)
+                    {
+                        Final = i;
+                        break;
+                    }
+                }
+                if (Final < 2)
+                {
+                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " buscador en WHERE es nulo");
+                }
+                if (DivValor3[1].Trim().Length != DivValor3[1].Trim().Substring(0, Final +1).Length)
+                {
+                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + ", por favor escribir solamente [Columna = Dato]");
+                }
+                DivValor3[1] = DivValor3[1].Trim().Substring(0, Final + 1);
+                string DatoVarchar = "";
+                if (VarChar)
+                {
+                    DatoVarchar = DivValor3[1].Trim();
+                }
+                else
+                {
+                    DatoVarchar = DivValor3[1].Trim().Split(' ')[0];
+                }
+
+                //Comprobar que exista la columna
+                FileStream GTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                StreamReader Lectura = new StreamReader(GTabla);
+                List<string> ColumnaArchivo = new List<string>();
+                List<string> Formato = new List<string>();
+                string Tipo;
+                Lectura.ReadLine();
+                while ((Tipo = Lectura.ReadLine()) != null)
+                {
+                    ColumnaArchivo.Add(Tipo.Split('|')[0]);
+                    Formato.Add(Tipo.Split('|')[1]);
+                }
+                GTabla.Close();
+
+                VarChar = false;
+                string TipoColumArchivo = "";
+                int ColumPos = -1;
+
+                for (int i = 0; i < ColumnaArchivo.Count(); i++)
+                {
+                    if (ColumnaArchivo.ElementAt(i) == Columna)
+                    {
+                        TipoColumArchivo = Formato.ElementAt(i);
+                        ColumPos = i - 1;
+                        VarChar = true;
+                    }
+                }
+                if (!VarChar)
+                {
+                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " la columna no existe");
+                }
+                VarChar = false;
+
+                string TipoDato = "";
+                if (TipoDato != TipoColumArchivo)
+                {
+                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " los campos en la condición no tienen el mismo tipo que la columna");
+                }
+                if (TipoDato != Datos.Instance.ListaAtributos.ElementAt(2))
+                {
+                    if (DivValor3[1].Trim().Split(' ').Length >1)
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + ", por favor escribir [Columna = Dato]");
+                    }
+                }
+                VarChar = false;
+
+                BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolACrear = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreTabla + ".arbolb"), 8);
+                List<BTreeDLL.Tabla> DatosLista = ArbolACrear.goOverTreeInOrder();
+                BTreeDLL.Tabla TablaEliminar = new Tabla(int.Parse(DatoVarchar), null);
+                if (ArbolACrear.SearchElementTree(TablaEliminar) == null)
+                {
+                    throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " el ID no existe en el arbol");
+                }
+                if (Columna == "ID")//Eliminar elemento por ID
+                {
+                    BTreeDLL.Tabla DatoEliminar = new BTreeDLL.Tabla(int.Parse(DatoVarchar), null);
+                    ArbolACrear.DeleteElement(DatoEliminar);
+                }
+                else
+                {
+                    for (int i = 0; i < DatosLista.Count; i++)
+                    {
+                        for (int j = 0; j < DatosLista.ElementAt(i).Objetos.Count; j++)
+                        {
+                            switch (saberTipo(DatoVarchar))
+                            {
+                                case "VARCHAR(100)":
+                                    DatoVarchar = DatoVarchar.Replace("'","");
+
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        #endregion
+
+        #region Utilidad
+        public string saberTipo(string Valor)
+        {
+            string tipoDato = "";
+            try
+            {
+                //Es tipo INT
+                int pruebaParseInt = int.Parse(Valor);
+                tipoDato = "INT";
+            }
+            catch (FormatException)
+            {
+                //No es tipo int
+            }
+
+            //Si tiene lenght mayor a dos se puede comprobar si es una fecha o varchar
+            if (Valor.Length > 2)
+            {
+                if (Valor[0] == '\'' && Valor[Valor.Length - 1] == '\'')
+                {
+                    Valor = Valor.Replace("'", "");
+
+                    try
+                    {
+                        //Es Datetime
+                        DateTime pruebaParseDate = DateTime.Parse(Valor);
+                        tipoDato = "DATETIME";
+                    }
+                    catch (FormatException)
+                    {
+                        //Es tipo VARCHAR
+                        tipoDato = "VARCHAR(100)";
+
+                        if (Valor.Length > 100)
+                        {
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " campo VARCHAR(100) pero su tamaño es " + Valor.Length);
+                        }
+                    }
+                }
+            }
+            return tipoDato;
         }
         #endregion
     }
