@@ -1055,7 +1055,18 @@ namespace ProyectoMicroSQL.Controllers
             {
                 throw new InvalidOperationException("El nombre de la tabla a eliminar no existe");
             }
-            //Elimina el archivo de Tabla & Arbol
+            //Elimina el archivo de Lista, Tabla & Árbol
+            for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count; i++)
+            {
+                if (Datos.Instance.ListaTablasExistentes.ElementAt(i) == Valor.Trim().Split(' ')[0].ToUpper())
+                {
+                    Datos.Instance.ListaTablasExistentes.Remove(NombreTabla[i]);
+                }
+                if (Datos.Instance.ListaTablaYValores.ElementAt(i).NombreTabla == Valor.Trim().Split(' ')[0].ToUpper())
+                {
+                    Datos.Instance.ListaTablaYValores.RemoveAt(i);
+                }
+            }
             System.IO.File.Delete(Server.MapPath(@"~/microSQL/tablas/" + Valor.Trim().Split(' ')[0] + ".tabla"));
             System.IO.File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + Valor.Trim().Split(' ')[0] + ".arbolb"));
 
@@ -1216,14 +1227,36 @@ namespace ProyectoMicroSQL.Controllers
                             switch (saberTipo(DatoVarchar))
                             {
                                 case "VARCHAR(100)":
-                                    DatoVarchar = DatoVarchar.Replace("'", "");
-
+                                    DatoVarchar = DatoVarchar.Replace("'","");
+                                    if (j == ColumPos && DatosLista.ElementAt(i).Objetos.ElementAt(j).ToString().Replace("#", "") == DatoVarchar)
+                                    {
+                                        BTreeDLL.Tabla Eliminar_VARCHAR = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                        ArbolACrear.DeleteElement(Eliminar_VARCHAR);
+                                    }
+                                    break;
+                                case "INT":
+                                    if (j == ColumPos && Convert.ToInt32(DatosLista.ElementAt(i).Objetos.ElementAt(j)) == int.Parse(DatoVarchar))
+                                    {
+                                        BTreeDLL.Tabla Eliminar_INT = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                        ArbolACrear.DeleteElement(Eliminar_INT);
+                                    }
+                                    break;
+                                case "DATETIME":
+                                    BTreeDLL.Tabla Eliminar_DATETIME = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                    ArbolACrear.DeleteElement(Eliminar_DATETIME);
+                                    break;
                             }
                         }
                     }
                 }
+                ArbolACrear.CloseStream();
             }
-
+            else//Se eliminan todos los datos, no tiene WHERE
+            {
+                System.IO.File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"));
+                BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolCrear = new BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), 8);
+                ArbolCrear.CloseStream();
+            }
         }
         #endregion
 
