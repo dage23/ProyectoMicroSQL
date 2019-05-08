@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Dynamic;
 using ProyectoMicroSQL.Models;
 using ProyectoMicroSQL.Controllers;
+using ProyectoMicroSQL.Helpers;
 using BTreeDLL;
 using Tabla = BTreeDLL.Tabla;
 
@@ -695,7 +696,6 @@ namespace ProyectoMicroSQL.Controllers
                             }
                         }
                     }
-                    //aqui voy
                     TablaAMostrar Tabla = new TablaAMostrar();
                     Tabla.NombreColumnasArchivo = ColumnaEnArchivo;
                     Tabla.NombreColumnasAMostrar = ColumnaEnArchivo;
@@ -786,7 +786,7 @@ namespace ProyectoMicroSQL.Controllers
                         {
                             throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " trata de buscar un valor nulo");
                         }
-                        if (InstruccionesSeparadas3[1].Trim().Length != InstruccionesSeparadas3[1].Trim().Substring(0,ConteoFinal+1).Length)
+                        if (InstruccionesSeparadas3[1].Trim().Length != InstruccionesSeparadas3[1].Trim().Substring(0, ConteoFinal + 1).Length)
                         {
                             throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee valores adicionales no permitidos");
                         }
@@ -803,6 +803,7 @@ namespace ProyectoMicroSQL.Controllers
                     }
                     string tipoDato = "";
                     FileStream ArchivoDeTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    Datos.Instance.NombreTabla = NombreTabla;
                     StreamReader LectorTabla = new StreamReader(ArchivoDeTabla);
                     ColumnaEnArchivo = new List<string>();
                     TipoDatoEnArchivo = new List<string>();
@@ -818,7 +819,7 @@ namespace ProyectoMicroSQL.Controllers
                     string TipoColumnaEnArchivo = "";
                     for (int i = 0; i < ColumnaEnArchivo.Count; i++)
                     {
-                        if (ColumnaEnArchivo.ElementAt(i)==NombreColumna.ToUpper())
+                        if (ColumnaEnArchivo.ElementAt(i) == NombreColumna.ToUpper())
                         {
                             TipoColumnaEnArchivo = TipoDatoEnArchivo.ElementAt(i);
                             ExisteColumna = true;
@@ -869,13 +870,167 @@ namespace ProyectoMicroSQL.Controllers
                     }
                     if (!ExisteTipoDato)
                     {
-
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", desea  buscar un tipo de dato no reconocido");
                     }
+
+                    if (tipoDato != TipoColumnaEnArchivo)
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", desea  buscar un tipo de dato que no concuerda con la tabla");
+                    }
+
+                    if (tipoDato != Datos.Instance.ListaAtributos.ElementAt(1))
+                    {
+                        if (InstruccionesSeparadas3[1].Trim().Split(' ').Length > 1)
+                        {
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", posee un error de escritura, por favor revisar [columna=dato]");
+                        }
+                    }
+                    string[] ArregloColumnaRepetidas = new string[ColumnasSolicitadas.Length];
+                    for (int i = 0; i < ArregloColumnaRepetidas.Length; i++)
+                    {
+                        ArregloColumnaRepetidas[i] = "";
+                    }
+                    //----------------------Comprobar que existan columnas-------------------------------------
+                    bool ColumnaExisten = false;
+                    for (int i = 0; i < ColumnasSolicitadas.Length; i++)
+                    {
+                        ColumnaExisten = false;
+                        for (int j = 0; j < ArregloColumnaRepetidas.Length; j++)
+                        {
+                            if (ColumnasSolicitadas[i].Trim().ToUpper() == ArregloColumnaRepetidas[j].Trim())
+                            {
+                                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee columnas repetidas");
+                            }
+                        }
+                        for (int k = 0; k < ColumnaEnArchivo.Count; k++)
+                        {
+                            if (ColumnasSolicitadas[i].Trim().ToUpper() == ColumnaEnArchivo.ElementAt(k))
+                            {
+                                ColumnaExisten = true;
+                                break;
+                            }
+                        }
+                        if (!ColumnaExisten)
+                        {
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee una columna mal colocada, por favor revisa el orden de insercion de codigo");
+                        }
+                        ArregloColumnaRepetidas[i] = ColumnasSolicitadas[i].ToUpper();
+                    }
+                    //-------------------------------select columna from where metodo4-------------------
+                    for (int i = 0; i < ColumnasSolicitadas.Length; i++)
+                    {
+                        ColumnasSolicitadas[i] = ColumnasSolicitadas[i].Trim();
+                    }
+                    BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"), 8);
+                    Datos.Instance.NombreTabla = NombreTabla;
+                    List<BTreeDLL.Tabla> Listadatos = CrearArbol.goOverTreeInOrder();
+                    List<BTreeDLL.Tabla> DatosTabla = new List<Tabla>();
+                    //Datos a para tabla
+                    for (int i = 0; i < Listadatos.Count; i++)
+                    {
+                        for (int j = 0; j < Listadatos.ElementAt(i).Objetos.Count; j++)
+                        {
+                            if (NombreColumna == "ID")
+                            {
+                                if (Listadatos.ElementAt(i).ID.ToString() == dato.Trim())
+                                {
+                                    DatosTabla.Add(Listadatos.ElementAt(i));
+                                }
+                            }
+                            else
+                            {
+                                if (Listadatos.ElementAt(i).Objetos.ElementAt(j).ToString() == dato.Trim().Replace("'", ""))
+                                {
+                                    DatosTabla.Add(Listadatos.ElementAt(i));
+                                }
+                            }
+                        }
+                    }
+                    for (int i = 0; i < ColumnasSolicitadas.Length; i++)
+                    {
+                        ColumnasSolicitadas[i] = ColumnasSolicitadas[i].ToUpper();
+                    }
+                    TablaAMostrar tablaAMostrar = new TablaAMostrar();
+                    tablaAMostrar.NombreColumnasArchivo = ColumnaEnArchivo;
+                    tablaAMostrar.NombreColumnasAMostrar = ColumnasSolicitadas.ToList();
+                    tablaAMostrar.ListaDatos = DatosTabla;
+                    tablaAMostrar.DatosAMostrarSelect();
+                    CrearArbol.CloseStream();
+                }
+                //-------------------------------select columa from metodo5----------------------------------
+                else
+                {
+                    bool ExisteTabla = false;
+                    string nombreTabla = InstruccionesSeparadas[1].Trim().Split(' ')[0];
+                    string[] tablas = Datos.Instance.ListaTablasExistentes.ToArray();
+                    for (int i = 0; i < tablas.Length; i++)
+                    {
+                        if (tablas[i] == nombreTabla.ToUpper())
+                        {
+                            ExisteTabla = true;
+                        }
+                    }
+                    if (!ExisteTabla)
+                    {
+                        throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", la tabla no existe.");
+                    }
+                    FileStream tabla = new FileStream(Server.MapPath(@"~/microSQL/tablas" + nombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    Datos.Instance.NombreTabla = nombreTabla;
+                    StreamReader Lector = new StreamReader(tabla);
+                    ColumnaEnArchivo = new List<string>();
+                    TipoDatoEnArchivo = new List<string>();
+                    string[] ArregloColumnasRepetidas = new string[ColumnasSolicitadas.Length];
+                    string TipoActual;
+                    Lector.ReadLine();
+                    for (int i = 0; i < ArregloColumnasRepetidas.Length; i++)
+                    {
+                        ArregloColumnasRepetidas[i] = "";
+                    }
+                    while ((TipoActual=Lector.ReadLine())!=null)
+                    {
+                        ColumnaEnArchivo.Add(TipoActual.Split(',')[0]);
+                        TipoDatoEnArchivo.Add(TipoActual.Split(',')[1]);
+                    }
+                    tabla.Close();
+                    bool ExisteTodasColumnas = false;
+                    for (int i = 0; i < ColumnasSolicitadas.Length; i++)
+                    {
+                        ExisteTodasColumnas = false;
+                        for (int j = 0; j < ArregloColumnasRepetidas.Length; j++)
+                        {
+                            if (ColumnasSolicitadas[i].Trim().ToUpper()==ArregloColumnasRepetidas[j].Trim())
+                            {
+                                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key+" posee una columna repetida");
+                            }
+                        }
+                        for (int k = 0; k < ColumnaEnArchivo.Count; k++)
+                        {
+                            if (ColumnasSolicitadas[i].Trim().ToUpper()==ColumnaEnArchivo.ElementAt(k))
+                            {
+                                ExisteTodasColumnas = true;break;
+                            }
+                        }
+                        if (!ExisteTodasColumnas)
+                        {
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee una columna que no esta en la posicion correcta");
+                        }
+                        ArregloColumnasRepetidas[i] = ColumnasSolicitadas[i].ToUpper();
+                    }
+                    for (int i = 0; i < ColumnasSolicitadas.Length; i++)
+                    {
+                        ColumnasSolicitadas[i] = ColumnasSolicitadas[i].ToUpper();
+                    }
+                    BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arbolesb/"+nombreTabla+".arbolb"),8);
+                    Datos.Instance.NombreTabla = nombreTabla;
+                    List<BTreeDLL.Tabla> datosTablas = CrearArbol.goOverTreeInOrder();
+                    TablaAMostrar tablaAMostrar = new TablaAMostrar();
+                    tablaAMostrar.NombreColumnasArchivo = ColumnaEnArchivo;
+                    tablaAMostrar.NombreColumnasAMostrar = ColumnasSolicitadas.ToList();
+                    tablaAMostrar.ListaDatos = datosTablas;
+                    tablaAMostrar.DatosAMostrarSelect();
+                    CrearArbol.CloseStream();
                 }
             }
-            //-------------------------------select columna from where metodo4-------------------
-            //-------------------------------select columa from metodo5----------------------------------
-
         }
         //--------------------------------DROP--------------------------------------------
         #region  Drop
@@ -937,7 +1092,7 @@ namespace ProyectoMicroSQL.Controllers
             {
                 if (Valor.Split(' ')[2] != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)//Cuando tenga
                 {
-                    throw new InvalidOperationException("Despues de "+Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " debe de ir " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                    throw new InvalidOperationException("Despues de " + Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " debe de ir " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
                 }
             }
             string[] DivValor2 = Regex.Split(Valor.Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
@@ -978,7 +1133,7 @@ namespace ProyectoMicroSQL.Controllers
                 {
                     throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " buscador en WHERE es nulo");
                 }
-                if (DivValor3[1].Trim().Length != DivValor3[1].Trim().Substring(0, Final +1).Length)
+                if (DivValor3[1].Trim().Length != DivValor3[1].Trim().Substring(0, Final + 1).Length)
                 {
                     throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + ", por favor escribir solamente [Columna = Dato]");
                 }
@@ -1033,7 +1188,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 if (TipoDato != Datos.Instance.ListaAtributos.ElementAt(2))
                 {
-                    if (DivValor3[1].Trim().Split(' ').Length >1)
+                    if (DivValor3[1].Trim().Split(' ').Length > 1)
                     {
                         throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + ", por favor escribir [Columna = Dato]");
                     }
@@ -1061,7 +1216,7 @@ namespace ProyectoMicroSQL.Controllers
                             switch (saberTipo(DatoVarchar))
                             {
                                 case "VARCHAR(100)":
-                                    DatoVarchar = DatoVarchar.Replace("'","");
+                                    DatoVarchar = DatoVarchar.Replace("'", "");
 
                             }
                         }
