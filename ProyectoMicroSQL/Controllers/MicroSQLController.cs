@@ -1085,7 +1085,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             ConvertirEnLista();
-            Success(string.Format("Operacion select exitosa, para revisar su selección por favor diríjase a -Tabla Seleccionada-" ), true);
+            Success(string.Format("Operacion select exitosa, para revisar su seleccion dirijase a -Tabla Seleccionada-"), true);
         }
         #endregion
 
@@ -1404,6 +1404,28 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 DatosMandar.Elemento = FilasTablas;
                 Datos.Instance.ListaAMostrarSelect.Add(DatosMandar);
+            }
+        }
+        public ActionResult ExportarCSV()
+        {
+            string Nombre = Datos.Instance.NombreTabla;
+            string RutaArchivo = (@"~/microSQL/"+Nombre+".csv");
+            try
+            {
+                System.IO.StreamWriter streamWriter = new StreamWriter(Server.MapPath(RutaArchivo), false);
+                for (int i = 0; i < Datos.Instance.ListaAMostrarSelect.Count; i++)
+                {
+                    streamWriter.WriteLine(Datos.Instance.ListaAMostrarSelect[i].Elemento);
+                }
+                streamWriter.Flush();
+                streamWriter.Close();
+                Success(String.Format("Arhivo creado con exito en carpeta microSQL con el nombre"+Nombre+", retornando a Ingresar codigo"), true);
+                return View("IngresarSQL");
+            }
+            catch (Exception)
+            {
+                Danger(string.Format("Hubo un error en la creacion de archivo, retornando a Ingresar codigo"), true);
+                return View("IngresarSQL");
             }
         }
         #endregion
