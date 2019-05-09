@@ -14,7 +14,7 @@ using Tabla = BTreeDLL.Tabla;
 
 namespace ProyectoMicroSQL.Controllers
 {
-    public class MicroSQLController : Controller
+    public class MicroSQLController : BaseController
     {
 
         #region Diccionarios
@@ -50,6 +50,7 @@ namespace ProyectoMicroSQL.Controllers
                     }
                 }
             }
+            Success(string.Format("Archivo importado exitosamente"), true);
             return RedirectToAction("IngresarSQL");
         }
         public ActionResult ConfiguracionDiccionarioManual()
@@ -82,6 +83,7 @@ namespace ProyectoMicroSQL.Controllers
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionInsertInto, "INSERT INTO");
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
             Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionGo, "GO");
+            Success(string.Format("Definiciones editadas exitosamente"), true);
             return RedirectToAction("IngresarSQL");
         }
         //--------------------------------------------------------------IMPORTAR AUTOMATICAMENTE LAS PALABRAS RESERVADAS---------------------------------
@@ -149,7 +151,7 @@ namespace ProyectoMicroSQL.Controllers
                 {
                     //Eliminar Archivo Tabla
                     DropTabla(ArregloOperaciones[i]);
-                }      
+                }
             }
             return View("DatosSQL");
         }
@@ -165,22 +167,26 @@ namespace ProyectoMicroSQL.Controllers
             NombreTabla = SepararParentesis[0].Trim();
             if (SepararParentesis.Length == 1)
             {
-                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene parentesis de apertura");
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene parentesis de apertura"),true);
+                return;
             }
             if (!Valor.Contains(Datos.Instance.ListaAtributos.ElementAt(0)))
             {
-                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene " + Datos.Instance.ListaAtributos.ElementAt(0));
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene " + Datos.Instance.ListaAtributos.ElementAt(0)),true);
+                return;
             }
             SepararParentesis[1] = SepararParentesis[1].Trim();
             if (!SepararParentesis[1][SepararParentesis[1].Length - 1].Equals(')'))
             {
-                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene parentesis de clausura");
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene parentesis de clausura"),true);
+                return;
             }
             SepararParentesis[1] = SepararParentesis[1].Substring(0, SepararParentesis[1].Length - 1);
             string[] ValoresTabla = SepararParentesis[1].Split(',');
             if (ValoresTabla.Length < 2)
             {
-                throw new System.InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no puede insertar solo 1 atributo");
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no puede insertar solo 1 atributo"),true);
+                return;
             }
             if (ValoresTabla.Any(x => x.Trim() == ""))
             {
@@ -317,7 +323,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             Datos.Instance.ListaTablaYValores.Add(new Listado_Tablas { NombreTabla = NombreTabla, ValoresTabla = ValoresdeTabla, TipoValoresTabla= TipoValoresTabla });
-
+            Success(string.Format("Tabla creada exitosamente"), true);
         }
         //-------------------------------Crear archivo.tabla-----------
         private void CrearArchivoTabla(List<string> NombreColumnas, List<string> TipoColumnas, string Nombre)
@@ -355,7 +361,8 @@ namespace ProyectoMicroSQL.Controllers
             Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key, "").Trim();
             if (Valor.Count(x => x == '(') != 2 || Valor.Count(y => y == ')') != 2)
             {
-                throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " necesitas revisar la sintaxis de tu codigo (PARENTESIS)");
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " necesitas revisar la sintaxis de tu codigo (PARENTESIS)"),true);
+                return;
             }
             string[] SeparadorComas = Valor.Split(new char[] { '(' }, 2);
             SeparadorComas[0] = SeparadorComas[0].Trim();
@@ -501,6 +508,7 @@ namespace ProyectoMicroSQL.Controllers
 
             ArbolACrear.AddElement(TablaAInsertarEnArbol);
             ArbolACrear.CloseStream();
+            Success(string.Format("Insercion exitosa"), true);
         }
         #endregion
 
@@ -1048,6 +1056,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             ConvertirEnLista();
+            Success(string.Format("Operacion select exitosa"), true);
         }
         #endregion
 
@@ -1087,7 +1096,7 @@ namespace ProyectoMicroSQL.Controllers
             }
             System.IO.File.Delete(Server.MapPath(@"~/microSQL/tablas/" + Valor.Trim().Split(' ')[0] + ".tabla"));
             System.IO.File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + Valor.Trim().Split(' ')[0] + ".arbolb"));
-
+            Success(string.Format("Tabla eliminada exitosamente"), true);
         }
         #endregion
 
@@ -1275,6 +1284,7 @@ namespace ProyectoMicroSQL.Controllers
                 BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolCrear = new BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), 8);
                 ArbolCrear.CloseStream();
             }
+            Success(string.Format("Eliminar exitoso"), true);
         }
         #endregion
 
