@@ -5,10 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Dynamic;
 using ProyectoMicroSQL.Models;
-using ProyectoMicroSQL.Controllers;
-using ProyectoMicroSQL.Helpers;
 using BTreeDLL;
 using Tabla = BTreeDLL.Tabla;
 
@@ -153,6 +150,7 @@ namespace ProyectoMicroSQL.Controllers
                     DropTabla(ArregloOperaciones[i]);
                 }
             }
+            Danger("Nombre de instrucción no se encuentra en el diccionario", true);
             return View("DatosSQL");
         }
         #endregion
@@ -269,7 +267,6 @@ namespace ProyectoMicroSQL.Controllers
                     Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " los atributos que no son PRIMARY KEY no deben de tener mas de dos campos"), true);
                     return;
                 }
-
                 if (ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(0) ||
                 ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(1) ||
                 ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(2) ||
@@ -306,7 +303,6 @@ namespace ProyectoMicroSQL.Controllers
                     }
                 }
             }
-
             //-------------------------------Crear archivo.tabla------------------
             CrearArchivoTabla(ListaNombreColumna, ListaTipoColumnas, NombreTabla);
             //-------------------------------Crear archivo.arbolb-----------------
@@ -1089,7 +1085,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             ConvertirEnLista();
-            Success(string.Format("Operacion select exitosa"), true);
+            Success(string.Format("Operacion select exitosa, para revisar su selección por favor diríjase a -Tabla Seleccionada-" ), true);
         }
         #endregion
 
@@ -1413,10 +1409,3 @@ namespace ProyectoMicroSQL.Controllers
         #endregion
     }
 }
-
-
-
-
-
-
-
