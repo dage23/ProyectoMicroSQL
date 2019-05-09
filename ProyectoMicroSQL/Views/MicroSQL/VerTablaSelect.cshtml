@@ -1,0 +1,28 @@
+﻿@model IEnumerable<ProyectoMicroSQL.Models.ModeloTablaAMostrar>
+
+@{
+    ViewBag.Title = "VerTablaSelect";
+}
+
+<h2>Tabla Seleccionada</h2>
+
+<p>
+    @Html.ActionLink("Insertar Instrucciones", "DatosSQL")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Elemento)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Elemento)
+        </td>       
+    </tr>
+}
+
+</table>

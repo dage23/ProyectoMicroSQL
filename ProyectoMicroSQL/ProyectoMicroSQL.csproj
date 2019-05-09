@@ -140,6 +140,7 @@
     <Compile Include="Helpers\Utilidades.cs" />
     <Compile Include="Models\Diccionario.cs" />
     <Compile Include="Models\Listado Tablas.cs" />
+    <Compile Include="Models\ModeloTablaAMostrar.cs" />
     <Compile Include="Models\Sintaxis.cs" />
     <Compile Include="Models\TablaAMostrar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -196,6 +197,7 @@
     <Content Include="Views\Shared\_Alerts.cshtml" />
     <Content Include="Views\MicroSQL\DatosSQL.cshtml" />
     <Content Include="Views\MicroSQL\VerTablas.cshtml" />
+    <Content Include="Views\MicroSQL\VerTablaSelect.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

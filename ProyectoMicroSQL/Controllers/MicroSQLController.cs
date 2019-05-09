@@ -343,7 +343,7 @@ namespace ProyectoMicroSQL.Controllers
         //-------------------------------Crear archivo.arbolb-----------
         private void CrearArbolDeTabla(string NombreArbol)
         {
-            BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreArbol + ".arbolb"), 8);
+            BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreArbol + ".arbolb"), 8);
             CrearArbol.CloseStream();
         }
         #endregion
@@ -497,7 +497,7 @@ namespace ProyectoMicroSQL.Controllers
             }
             //Si todo esta bien
             BTreeDLL.Tabla TablaAInsertarEnArbol = new BTreeDLL.Tabla(IDInsertar, ListaObjetosAInsertar);
-            BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolACrear = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreTablaInsertar + ".arbolb"), 8);
+            BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolACrear = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTablaInsertar + ".arbolb"), 8);
 
             ArbolACrear.AddElement(TablaAInsertarEnArbol);
             ArbolACrear.CloseStream();
@@ -732,8 +732,8 @@ namespace ProyectoMicroSQL.Controllers
                     ArchivoLector.ReadLine();
                     while ((DatoActual = ArchivoLector.ReadLine()) != null)
                     {
-                        ColumnaEnArchivo.Add(DatoActual.Split(',')[0]);
-                        TipoDatoEnArchivo.Add(DatoActual.Split(',')[1]);
+                        ColumnaEnArchivo.Add(DatoActual.Split('|')[0]);
+                        TipoDatoEnArchivo.Add(DatoActual.Split('|')[1]);
                     }
                     TablaAMostrar Tabla = new TablaAMostrar();
                     Tabla.NombreColumnasArchivo = ColumnaEnArchivo;
@@ -990,7 +990,7 @@ namespace ProyectoMicroSQL.Controllers
                     {
                         throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", la tabla no existe.");
                     }
-                    FileStream tabla = new FileStream(Server.MapPath(@"~/microSQL/tablas" + nombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    FileStream tabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + nombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     Datos.Instance.NombreTabla = nombreTabla;
                     StreamReader Lector = new StreamReader(tabla);
                     ColumnaEnArchivo = new List<string>();
@@ -1004,8 +1004,8 @@ namespace ProyectoMicroSQL.Controllers
                     }
                     while ((TipoActual=Lector.ReadLine())!=null)
                     {
-                        ColumnaEnArchivo.Add(TipoActual.Split(',')[0]);
-                        TipoDatoEnArchivo.Add(TipoActual.Split(',')[1]);
+                        ColumnaEnArchivo.Add(TipoActual.Split('|')[0]);
+                        TipoDatoEnArchivo.Add(TipoActual.Split('|')[1]);
                     }
                     tabla.Close();
                     bool ExisteTodasColumnas = false;
@@ -1047,6 +1047,7 @@ namespace ProyectoMicroSQL.Controllers
                     CrearArbol.CloseStream();
                 }
             }
+            ConvertirEnLista();
         }
         #endregion
 
@@ -1223,7 +1224,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 VarChar = false;
 
-                BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolACrear = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arboles/" + NombreTabla + ".arbolb"), 8);
+                BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolACrear = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"), 8);
                 List<BTreeDLL.Tabla> DatosLista = ArbolACrear.goOverTreeInOrder();
                 BTreeDLL.Tabla TablaEliminar = new Tabla(int.Parse(DatoVarchar), null);
                 if (ArbolACrear.SearchElementTree(TablaEliminar) == null)
@@ -1335,11 +1336,41 @@ namespace ProyectoMicroSQL.Controllers
         {
             return View("DatosSQL");
         }
+        public ActionResult VerTablaSelect()
+        {
+            return View(Datos.Instance.ListaAMostrarSelect);
+        }
         public RedirectResult RedirectToAspx()
         {
             return Redirect("/WebForm1.aspx");
         }
-
+        public void ConvertirEnLista()
+        {
+            Datos.Instance.ListaAMostrarSelect.Clear();
+            string Nombre = Datos.Instance.NombreTabla;
+            List<string> ListaNombreColumnas = Datos.Instance.NombreColumnasMostrar;
+            List<List<object>> ListaFilasTabla = Datos.Instance.DatosParaMostrar;
+            string NombreColumnas = "";
+            var TablaAMandar = new ModeloTablaAMostrar();
+            for (int i = 0; i < ListaNombreColumnas.Count; i++)
+            {
+                NombreColumnas += ListaNombreColumnas[i] + "|";
+            }
+            TablaAMandar.NombreTabla = Nombre;
+            TablaAMandar.Elemento = NombreColumnas;
+            Datos.Instance.ListaAMostrarSelect.Add(TablaAMandar);
+            for (int i = 0; i < ListaFilasTabla.Count; i++)
+            {
+                string FilasTablas = "";
+                var DatosMandar = new ModeloTablaAMostrar();
+                for (int j = 0; j < ListaNombreColumnas.Count; j++)
+                {
+                    FilasTablas += ListaFilasTabla[i][j].ToString() + "|";
+                }
+                DatosMandar.Elemento = FilasTablas;
+                Datos.Instance.ListaAMostrarSelect.Add(DatosMandar);
+            }
+        }
         #endregion
     }
 }

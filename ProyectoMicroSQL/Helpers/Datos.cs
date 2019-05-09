@@ -24,5 +24,6 @@ public class Datos
     public List<string> ListaAtributos = new List<string>();
     public List<string> ListaTablasExistentes = new List<string>();
     public List<Listado_Tablas> ListaTablaYValores = new List<Listado_Tablas>();
+    public List<ModeloTablaAMostrar> ListaAMostrarSelect = new List<ModeloTablaAMostrar>();
 }
 
