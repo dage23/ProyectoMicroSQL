@@ -4,10 +4,10 @@
     ViewBag.Title = "VerTablas";
 }
 
-<h2>VerTablas</h2>
+<h2>Tablas Creadas</h2>
 
 <p>
-    @Html.ActionLink("Ingresar Nuevo", "DatosSQL")
+    @Html.ActionLink("Ingresar Nuevo", "IngresarSQL")
 </p>
 <table class="table">
     <tr>
@@ -23,18 +23,19 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.NombreTabla)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ValoresTabla)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TipoValoresTabla)
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NombreTabla)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ValoresTabla)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TipoValoresTabla)
+            </td>
+        </tr>
+    }
 
 </table>

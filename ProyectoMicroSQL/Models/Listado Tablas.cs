@@ -7,7 +7,7 @@ namespace ProyectoMicroSQL.Models
 {
     public class Listado_Tablas
     {
-        
+
         public string NombreTabla { get; set; }
         public string ValoresTabla { get; set; }
         public string TipoValoresTabla { get; set; }

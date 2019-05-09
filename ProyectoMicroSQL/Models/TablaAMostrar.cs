@@ -20,7 +20,7 @@ namespace ProyectoMicroSQL.Models
                 ListaObjetos = new List<object>();
                 for (int j = 0; j < NombreColumnasAMostrar.Count; j++)
                 {
-                    if (NombreColumnasAMostrar.ElementAt(j).Trim()=="ID")
+                    if (NombreColumnasAMostrar.ElementAt(j).Trim() == "ID")
                     {
                         ListaObjetos.Add(ListaDatos.ElementAt(i).ID);
                     }
@@ -28,9 +28,9 @@ namespace ProyectoMicroSQL.Models
                     {
                         for (int k = 0; k < NombreColumnasArchivo.Count; k++)
                         {
-                            if (NombreColumnasArchivo.ElementAt(k).Trim()==NombreColumnasAMostrar.ElementAt(j).Trim())
+                            if (NombreColumnasArchivo.ElementAt(k).Trim() == NombreColumnasAMostrar.ElementAt(j).Trim())
                             {
-                                ListaObjetos.Add(ListaDatos.ElementAt(i).Objetos.ElementAt(k-1).ToString().Replace("#",""));
+                                ListaObjetos.Add(ListaDatos.ElementAt(i).Objetos.ElementAt(k - 1).ToString().Replace("#", ""));
                             }
                         }
                     }
