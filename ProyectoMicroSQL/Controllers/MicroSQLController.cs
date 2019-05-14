@@ -155,12 +155,12 @@ namespace ProyectoMicroSQL.Controllers
 
             if (DiccionarioVar.FuncionValue == "")
             {
-                DiccionarioVar.FuncionValue = "VALUE";
-                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
+                DiccionarioVar.FuncionValue = "VALUES";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUES");
             }
             else
             {
-                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUES");
             }
 
             if (DiccionarioVar.FuncionGo == "")
@@ -387,17 +387,17 @@ namespace ProyectoMicroSQL.Controllers
                 ListaTipoColumnas.Add(ValoresTabla[i].Split(' ')[1].ToUpper());
             }
             string[] ArregloListaNombreTablas = Datos.Instance.ListaTablasExistentes.ToArray();
-            if (Datos.Instance.ListaTablasExistentes.Count() > 0)
-            {
-                for (int i = 0; i < ArregloListaNombreTablas.Length; i++)
-                {
-                    if (ArregloListaNombreTablas[i] == NombreTabla.ToUpper())
-                    {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + ", el nombre " + NombreTabla + " no puede repetirse"), true);
-                        return;
-                    }
-                }
-            }
+            //if (Datos.Instance.ListaTablasExistentes.Count() > 0)
+            //{
+            //    for (int i = 0; i < ArregloListaNombreTablas.Length; i++)
+            //    {
+            //        if (ArregloListaNombreTablas[i] == NombreTabla.ToUpper())
+            //        {
+            //            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + ", el nombre " + NombreTabla + " no puede repetirse"), true);
+            //            return;
+            //        }
+            //    }
+            //}
             //-------------------------------Crear archivo.tabla------------------
             CrearArchivoTabla(ListaNombreColumna, ListaTipoColumnas, NombreTabla);
             //-------------------------------Crear archivo.arbolb-----------------
@@ -1297,7 +1297,7 @@ namespace ProyectoMicroSQL.Controllers
                 {
                     DatoVarchar = DivValor3[1].Trim().Split(' ')[0];
                 }
-                string TipoDato = "";
+                string TipoDato = "";/*VARIABLE POR CORREGIR, REVISAR CODIGO*/
 
                 //Comprobar que exista la columna
                 var GTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
