@@ -13,6 +13,18 @@ namespace ProyectoMicroSQL.Controllers
 {
     public class MicroSQLController : BaseController
     {
+        #region Valores
+        int SELECToPrimary_Key = 0;
+        int FROMoVARCHAR = 1;
+        int DELETEoINT = 2;
+        int WHEREoDATETIME = 3;
+        int CREATE_TABLE = 4;
+        int DROP_TABLE = 5;
+        int INSERT_INTO = 6;
+        int VALUES = 7;
+        int GO = 8;
+        int UPDATE = 9;
+        #endregion
 
         #region Diccionarios
         public ActionResult Configuracion()
@@ -195,7 +207,7 @@ namespace ProyectoMicroSQL.Controllers
             {
                 SintaxisEscrita = Sintaxis["SintaxisEscrita"],
             };
-            string DelimitadorGO = Datos.Instance.diccionarioColeccionada.ElementAt(8).Key;
+            string DelimitadorGO = Datos.Instance.diccionarioColeccionada.ElementAt(GO).Key;
             string[] ArregloOperaciones = Regex.Split(OperacionSintaxis.SintaxisEscrita, DelimitadorGO);
             for (int i = 0; i < ArregloOperaciones.Length; i++)//Se guarda en una linea
             {
@@ -204,27 +216,27 @@ namespace ProyectoMicroSQL.Controllers
             }
             for (int i = 0; i < ArregloOperaciones.Length; i++)
             {
-                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key))
+                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key))
                 {
                     //Crear Tabla   
                     CrearTablaYArbol(ArregloOperaciones[i]);
                 }
-                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key))
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key))
                 {
                     //Insertar en Tabla   
                     InsertarEnTablaArbol(ArregloOperaciones[i]);
                 }
-                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key))
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key))
                 {
                     //Seleccionar de Tabla   
                     SeleccionarDatosParaMostrar(ArregloOperaciones[i]);
                 }
-                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key))
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key))
                 {
                     //Eliminar elemento
                     Eliminar(ArregloOperaciones[i]);
                 }
-                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key))
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(DROP_TABLE).Key))
                 {
                     //Eliminar Archivo Tabla
                     DropTabla(ArregloOperaciones[i]);
@@ -242,36 +254,36 @@ namespace ProyectoMicroSQL.Controllers
         private void CrearTablaYArbol(string Valor)
         {
             string NombreTabla = "";
-            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key, "").Trim();
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key, "").Trim();
             string[] SepararParentesis = Valor.Split(new char[] { '(' }, 2);
             //-----------------------------------------Errores de sintaxis----------------------
             NombreTabla = SepararParentesis[0].Trim();
             if (SepararParentesis.Length == 1)
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene parentesis de apertura"), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + " no contiene parentesis de apertura"), true);
                 return;
             }
-            if (!Valor.Contains(Datos.Instance.ListaAtributos.ElementAt(0)))
+            if (!Valor.Contains(Datos.Instance.ListaAtributos.ElementAt(SELECToPrimary_Key)))
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene " + Datos.Instance.ListaAtributos.ElementAt(0)), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + " no contiene " + Datos.Instance.ListaAtributos.ElementAt(SELECToPrimary_Key)), true);
                 return;
             }
             SepararParentesis[1] = SepararParentesis[1].Trim();
             if (!SepararParentesis[1][SepararParentesis[1].Length - 1].Equals(')'))
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no contiene parentesis de clausura"), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + " no contiene parentesis de clausura"), true);
                 return;
             }
             SepararParentesis[1] = SepararParentesis[1].Substring(0, SepararParentesis[1].Length - 1);
             string[] ValoresTabla = SepararParentesis[1].Split(',');
             if (ValoresTabla.Length < 2)
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " no puede insertar solo 1 atributo"), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + " no puede insertar solo 1 atributo"), true);
                 return;
             }
             if (ValoresTabla.Any(x => x.Trim() == ""))
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " tiene error en las comas de separación de las columnas"), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + " tiene error en las comas de separación de las columnas"), true);
                 return;
             }
             for (int i = 0; i < ValoresTabla.Length; i++)
@@ -280,47 +292,47 @@ namespace ProyectoMicroSQL.Controllers
             }
             //-----------------------------Errores tipos de datos--------------------
             //Mas de 3 varchar
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(1))).Count > 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR))).Count > 3)
             {
-                Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(1)), true);
+                Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR)), true);
                 return;
             }
             //Mas de 3 int
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(2))).Count > 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(DELETEoINT))).Count > 3)
             {
-                Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(2)), true);
+                Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(DELETEoINT)), true);
                 return;
             }
             //Mas de 3 datetime
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(3))).Count > 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(WHEREoDATETIME))).Count > 3)
             {
-                Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(3)), true);
+                Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(WHEREoDATETIME)), true);
                 return;
             }
             //--------------------------------Operaciones con Primary key---------------------------------
-            int TamanoKey = Datos.Instance.ListaAtributos.ElementAt(0).Trim().Split(' ').Length;
+            int TamanoKey = Datos.Instance.ListaAtributos.ElementAt(SELECToPrimary_Key).Trim().Split(' ').Length;
             //--------------------------------Errores--------------------------------------------------
             if (ValoresTabla[0].Split(' ').Length != 2 + TamanoKey)
             {
-                Danger(string.Format(Datos.Instance.ListaAtributos.ElementAt(4) + " debe de contener 3 campos[NOMBRE TIPO LLAVE]"), true);
+                Danger(string.Format(Datos.Instance.ListaAtributos.ElementAt(CREATE_TABLE) + " debe de contener 3 campos[NOMBRE TIPO LLAVE]"), true);
                 return;
             }
             if (ValoresTabla[0].Split(' ')[0].ToUpper() != "ID")
             {
-                Danger(string.Format(Datos.Instance.ListaAtributos.ElementAt(4) + " debe contener ID como primer campo"), true);
+                Danger(string.Format(Datos.Instance.ListaAtributos.ElementAt(CREATE_TABLE) + " debe contener ID como primer campo"), true);
                 return;
             }
-            if (ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(0) ||
-                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(1) ||
-                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(2) ||
-                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(3))
+            if (ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(SELECToPrimary_Key) ||
+                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR) ||
+                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(DELETEoINT) ||
+                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(WHEREoDATETIME))
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " utiliza un atributo no permitido, debe de ser tipo " + Datos.Instance.ListaAtributos.ElementAt(0)), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + " utiliza un atributo no permitido, debe de ser tipo " + Datos.Instance.ListaAtributos.ElementAt(SELECToPrimary_Key)), true);
                 return;
             }
-            if (ValoresTabla[0].Split(' ')[1] != Datos.Instance.ListaAtributos.ElementAt(2))
+            if (ValoresTabla[0].Split(' ')[1] != Datos.Instance.ListaAtributos.ElementAt(DELETEoINT))
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", el primer dato debe ser un tipo " + Datos.Instance.ListaAtributos.ElementAt(2)), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + ", el primer dato debe ser un tipo " + Datos.Instance.ListaAtributos.ElementAt(DELETEoINT)), true);
                 return;
             }
             //--------------------------------------TIpo de llave primaria-------------------------------
@@ -330,9 +342,9 @@ namespace ProyectoMicroSQL.Controllers
                 LlavePrimaria += ValoresTabla[0].Split(' ')[i] + " ";
             }
             LlavePrimaria = LlavePrimaria.Trim();
-            if (LlavePrimaria != Datos.Instance.ListaAtributos.ElementAt(0))
+            if (LlavePrimaria != Datos.Instance.ListaAtributos.ElementAt(SELECToPrimary_Key))
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", el primer dato debe ser un " + Datos.Instance.ListaAtributos.ElementAt(0)), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + ", el primer dato debe ser un " + Datos.Instance.ListaAtributos.ElementAt(SELECToPrimary_Key)), true);
                 return;
             }
             //----------------------------------------Creacion de archivos------------------------------
@@ -347,27 +359,27 @@ namespace ProyectoMicroSQL.Controllers
                 //--------------------------------------Errores de atributos--------------------
                 if (ValoresTabla[i].Split(' ').Length != 2)
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " los atributos que no son PRIMARY KEY no deben de tener mas de dos campos"), true);
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + " los atributos que no son PRIMARY KEY no deben de tener mas de dos campos"), true);
                     return;
                 }
-                if (ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(0) ||
-                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(1) ||
-                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(2) ||
-                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(3))
+                if (ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(SELECToPrimary_Key) ||
+                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR) ||
+                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(DELETEoINT) ||
+                ValoresTabla[0].Split(' ')[0] == Datos.Instance.ListaAtributos.ElementAt(WHEREoDATETIME))
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + " los atributos que no son PRIMARY KEY deben contener el nombre en el campo 1"), true);
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + " los atributos que no son PRIMARY KEY deben contener el nombre en el campo 1"), true);
                     return;
                 }
-                if (ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(1) &&
-                ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(2) &&
-                ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(3))
+                if (ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR) &&
+                ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(DELETEoINT) &&
+                ValoresTabla[i].Split(' ')[1] == Datos.Instance.ListaAtributos.ElementAt(WHEREoDATETIME))
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", los atributos que no son PRIMARY KEY deben contener el tipo en el campo 2"), true);
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + ", los atributos que no son PRIMARY KEY deben contener el tipo en el campo 2"), true);
                     return;
                 }
                 if (ArregloNombreColumnas.Any(x => ValoresTabla[i].Split(' ')[0].ToUpper() == x))
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", no se pueden repetir nombres de columnas"), true);
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + ", no se pueden repetir nombres de columnas"), true);
                     return;
                 }
                 ArregloNombreColumnas[i] = ValoresTabla[i].Split(' ')[0].ToUpper();
@@ -381,7 +393,7 @@ namespace ProyectoMicroSQL.Controllers
                 {
                     if (ArregloListaNombreTablas[i] == NombreTabla.ToUpper())
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(4).Key + ", el nombre " + NombreTabla + " no puede repetirse"), true);
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(CREATE_TABLE).Key + ", el nombre " + NombreTabla + " no puede repetirse"), true);
                         return;
                     }
                 }
@@ -451,10 +463,10 @@ namespace ProyectoMicroSQL.Controllers
         //-------------------------------INSERT INTO----------------------------------------
         private void InsertarEnTablaArbol(string Valor)
         {
-            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key, "").Trim();
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key, "").Trim();
             if (Valor.Count(x => x == '(') != 2 || Valor.Count(y => y == ')') != 2)
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " necesitas revisar la sintaxis de tu codigo (PARENTESIS)"), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + " necesitas revisar la sintaxis de tu codigo (PARENTESIS)"), true);
                 return;
             }
             string[] SeparadorComas = Valor.Split(new char[] { '(' }, 2);
@@ -495,7 +507,7 @@ namespace ProyectoMicroSQL.Controllers
             string[] SepararPorPrimerParentesis = SeparadorComas[1].Trim().Split(new char[] { ')' }, 2);
             if (SepararPorPrimerParentesis[0].Trim().Split(',').Length != ColumnaEnArchivo.Count)
             {
-                Danger(string.Format("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + ", el numero de atributos de atributos no concuerda con los de la tabla"), true);
+                Danger(string.Format("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + ", el numero de atributos de atributos no concuerda con los de la tabla"), true);
                 return;
             }
 
@@ -506,28 +518,28 @@ namespace ProyectoMicroSQL.Controllers
             {
                 if (ColumnaInstruccion[i].Trim().ToUpper() != ColumnaEnArchivo.ElementAt(i))
                 {
-                    Danger(string.Format("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + ", no coinciden los atributos de la tabla con los almacenados"), true);
+                    Danger(string.Format("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + ", no coinciden los atributos de la tabla con los almacenados"), true);
                     return;
                 }
             }
 
             string[] SepararPorSegundoParentesis = SepararPorPrimerParentesis[1].Trim().Split(new char[] { '(' }, 2);
-            if (SepararPorSegundoParentesis[0].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(7).Key)
+            if (SepararPorSegundoParentesis[0].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(VALUES).Key)
             {
-                Danger(string.Format("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + "no posee" + Datos.Instance.diccionarioColeccionada.ElementAt(7).Key), true);
+                Danger(string.Format("La instruccion " + Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + "no posee" + Datos.Instance.diccionarioColeccionada.ElementAt(VALUES).Key), true);
                 return;
             }
 
             string[] SepararPorTercerParentesis = SepararPorSegundoParentesis[1].Trim().Split(new char[] { ')' }, 2);
             if (SepararPorTercerParentesis[1].Trim() != "")
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " tiene un error en los parentesis"), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + " tiene un error en los parentesis"), true);
                 return;
             }
 
             if (SepararPorTercerParentesis[0].Trim().Split(',').Length != TipoEnArchivo.Count)
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " no introduce la cantidad de valores requeridos"), true);
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + " no introduce la cantidad de valores requeridos"), true);
                 return;
             }
 
@@ -570,7 +582,7 @@ namespace ProyectoMicroSQL.Controllers
                         ArregloDAtosInsertar[i] = ArregloDAtosInsertar[i].Replace("'", "");
                         if (ArregloDAtosInsertar[i].Trim().Length == 0)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " no permite ingresar datos nulos"), true);
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + " no permite ingresar datos nulos"), true);
                             return;
                         }
                         try
@@ -588,7 +600,7 @@ namespace ProyectoMicroSQL.Controllers
                             TipoDatoExiste = true;
                             if (ArregloDAtosInsertar[i].Length > 100)
                             {
-                                Danger(string.Format("En " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " no puedes insertar VARCHAR mayores a 100"), true);
+                                Danger(string.Format("En " + Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + " no puedes insertar VARCHAR mayores a 100"), true);
                                 return;
                             }
                             ListaObjetosAInsertar.Add(ArregloDAtosInsertar[i]);
@@ -597,12 +609,12 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 if (!TipoDatoExiste)
                 {
-                    Danger(string.Format("En " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + " no se reconoce un tipo de dato a insertar"), true);
+                    Danger(string.Format("En " + Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + " no se reconoce un tipo de dato a insertar"), true);
                     return;
                 }
                 if (TipoDatoInsertar != TipoEnArchivo.ElementAt(i))
                 {
-                    Danger(string.Format("En " + Datos.Instance.diccionarioColeccionada.ElementAt(6).Key + ", hay un campo que no concuerda con la tabla"), true);
+                    Danger(string.Format("En " + Datos.Instance.diccionarioColeccionada.ElementAt(INSERT_INTO).Key + ", hay un campo que no concuerda con la tabla"), true);
                     return;
                 }
             }
@@ -620,23 +632,23 @@ namespace ProyectoMicroSQL.Controllers
         //-------------------------------SELECT-------------------------------------------
         private void SeleccionarDatosParaMostrar(string Instucciones)
         {
-            if (!Instucciones.Contains(Datos.Instance.diccionarioColeccionada.ElementAt(1).Key))
+            if (!Instucciones.Contains(Datos.Instance.diccionarioColeccionada.ElementAt(FROMoVARCHAR).Key))
             {
-                Danger(string.Format("El metodo " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " no contiene" + Datos.Instance.diccionarioColeccionada.ElementAt(1).Key), true);
+                Danger(string.Format("El metodo " + Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " no contiene" + Datos.Instance.diccionarioColeccionada.ElementAt(FROMoVARCHAR).Key), true);
                 return;
             }
-            Instucciones = Instucciones.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key, "").Trim();
+            Instucciones = Instucciones.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key, "").Trim();
             List<string> ColumnaEnArchivo;
             List<string> TipoDatoEnArchivo;
             if (Instucciones.Trim().Split(' ')[0] == "*")
             {
                 //--------------------------------select*from metodo1---------------
-                if (Instucciones.Trim().Split(' ')[1] != Datos.Instance.diccionarioColeccionada.ElementAt(1).Key)
+                if (Instucciones.Trim().Split(' ')[1] != Datos.Instance.diccionarioColeccionada.ElementAt(FROMoVARCHAR).Key)
                 {
-                    Danger(string.Format("Posee un error de sintaxis en el metodo " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key), true);
+                    Danger(string.Format("Posee un error de sintaxis en el metodo " + Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key), true);
                     return;
                 }
-                string[] InstuccionesSeparadas = Regex.Split(Instucciones, Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
+                string[] InstuccionesSeparadas = Regex.Split(Instucciones, Datos.Instance.diccionarioColeccionada.ElementAt(FROMoVARCHAR).Key);
                 bool ExisteTabla = false;
                 string NombreDeTabla = InstuccionesSeparadas[1].Trim().Split(' ')[0];
                 //for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count; i++)
@@ -649,37 +661,37 @@ namespace ProyectoMicroSQL.Controllers
                 //}
                 //if (!ExisteTabla)
                 //{
-                //    Danger(string.Format("En el comando " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " declara una tabla inexistente"), true);
+                //    Danger(string.Format("En el comando " + Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " declara una tabla inexistente"), true);
                 //    return;
                 //}
                 //Posee escrito where
                 if (InstuccionesSeparadas[1].Trim().Split(' ').Length > 1)
                 {
                     //---------------------Errores sintaxis-------------------------
-                    if (InstuccionesSeparadas[1].Trim().Split(' ')[1] != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)
+                    if (InstuccionesSeparadas[1].Trim().Split(' ')[1] != Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key)
                     {
-                        Danger(string.Format("Posee un error de escritura con la funcion " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key), true);
+                        Danger(string.Format("Posee un error de escritura con la funcion " + Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key), true);
                         return;
                     }
-                    string[] InstruccionesSeparadas2 = Regex.Split(InstuccionesSeparadas[1].Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                    string[] InstruccionesSeparadas2 = Regex.Split(InstuccionesSeparadas[1].Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key);
                     InstruccionesSeparadas2[1] = InstruccionesSeparadas2[1].Trim();
 
                     string[] InstruccionesSeparadas3 = Regex.Split(InstruccionesSeparadas2[1].Trim(), "=");
                     if (InstruccionesSeparadas3.Length != 2)
                     {
-                        Danger(string.Format("El comando " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee error de escritura en condicion"), true);
+                        Danger(string.Format("El comando " + Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee error de escritura en condicion"), true);
                         return;
                     }
 
                     if (InstruccionesSeparadas3[1].Trim() == "")
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee un error en la condicion"), true);
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee un error en la condicion"), true);
                         return;
                     }
 
                     if (InstruccionesSeparadas3[0].Trim() == "")
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee un error en la condicion"), true);
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee un error en la condicion"), true);
                         return;
                     }
                     //----------------------Errores en Where------------------------
@@ -704,12 +716,12 @@ namespace ProyectoMicroSQL.Controllers
                         }
                         if (ConteoFinal < 2)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " busca un dato null"), true);
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " busca un dato null"), true);
                             return;
                         }
                         if (InstruccionesSeparadas3[1].Trim().Length != InstruccionesSeparadas3[1].Trim().Substring(0, ConteoFinal + 1).Length)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee valores extras, debe de ser COLUMNA = DATO"), true); return;
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee valores extras, debe de ser COLUMNA = DATO"), true); return;
                         }
                         InstruccionesSeparadas3[1] = InstruccionesSeparadas3[1].Trim().Substring(0, ConteoFinal + 1);
                     }
@@ -752,7 +764,7 @@ namespace ProyectoMicroSQL.Controllers
 
                     if (!ExisteColumna)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " utiliza el nombre de columna inexistente"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " utiliza el nombre de columna inexistente"), true); return;
                     }
                     //---------------Existe Tipo Dato---------------------
                     bool ExisteTipoDato = false;
@@ -788,24 +800,24 @@ namespace ProyectoMicroSQL.Controllers
                                 ExisteTipoDato = true;
                                 if (DatoABuscar.Length > 100)
                                 {
-                                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " desea buscar un valor VARCHAR de mas de 100 posiciones"), true); return;
+                                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " desea buscar un valor VARCHAR de mas de 100 posiciones"), true); return;
                                 }
                             }
                         }
                     }
                     if (!ExisteTipoDato)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " desea buscar un tipo de atributo no reconocido"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " desea buscar un tipo de atributo no reconocido"), true); return;
                     }
                     if (TipodeDato != TipoColumnaEnArchivo)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " desea buscar un tipo de atributo que no coincide con la tabla"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " desea buscar un tipo de atributo que no coincide con la tabla"), true); return;
                     }
-                    if (TipodeDato != Datos.Instance.ListaAtributos.ElementAt(1))
+                    if (TipodeDato != Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR))
                     {
                         if (InstruccionesSeparadas3[1].Trim().Split(' ').Length > 1)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee valores extras, debe de ser COLUMNA = DATO"), true); return;
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee valores extras, debe de ser COLUMNA = DATO"), true); return;
                         }
                     }
                     //-------------------------------select*from where id metodo2-------------
@@ -866,14 +878,14 @@ namespace ProyectoMicroSQL.Controllers
             else
             {
                 //Dividimos por FROM
-                string[] InstruccionesSeparadas = Regex.Split(Instucciones, Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
+                string[] InstruccionesSeparadas = Regex.Split(Instucciones, Datos.Instance.diccionarioColeccionada.ElementAt(FROMoVARCHAR).Key);
                 if (InstruccionesSeparadas.Length == 1)
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " no contiene " + Datos.Instance.diccionarioColeccionada.ElementAt(1).Key), true); return;
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " no contiene " + Datos.Instance.diccionarioColeccionada.ElementAt(FROMoVARCHAR).Key), true); return;
                 }
                 if (InstruccionesSeparadas.Length > 2)
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " contiene " + Datos.Instance.diccionarioColeccionada.ElementAt(1).Key + " mas de una vez"), true); return;
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " contiene " + Datos.Instance.diccionarioColeccionada.ElementAt(FROMoVARCHAR).Key + " mas de una vez"), true); return;
                 }
                 string[] ColumnasSolicitadas = InstruccionesSeparadas[0].Trim().Split(',');
                 if (InstruccionesSeparadas[1].Trim().Split(' ').Length > 1)
@@ -881,24 +893,24 @@ namespace ProyectoMicroSQL.Controllers
                     bool UlilizaWhere = false;
                     string NombreTabla = InstruccionesSeparadas[1].Trim().Split(' ')[0];
 
-                    if (InstruccionesSeparadas[1].Trim().Split(' ')[1].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)
+                    if (InstruccionesSeparadas[1].Trim().Split(' ')[1].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " debe de tener " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key + " despues"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " debe de tener " + Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key + " despues"), true); return;
                     }
-                    string[] InstruccionesSeparadas2 = Regex.Split(InstruccionesSeparadas[1].Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                    string[] InstruccionesSeparadas2 = Regex.Split(InstruccionesSeparadas[1].Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key);
                     InstruccionesSeparadas2[1] = InstruccionesSeparadas2[1].Trim();
                     string[] InstruccionesSeparadas3 = Regex.Split(InstruccionesSeparadas2[1].Trim(), "=");
                     if (InstruccionesSeparadas3.Length != 2)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee un error de condicion."), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee un error de condicion."), true); return;
                     }
                     if (InstruccionesSeparadas3[1].Trim() == "")
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee error despues de ="), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee error despues de ="), true); return;
                     }
                     if (InstruccionesSeparadas3[0].Trim() == "")
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee un error antes de ="), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee un error antes de ="), true); return;
                     }
                     string NombreColumna = InstruccionesSeparadas3[0].Trim();
                     int ConteoFinal = 0;
@@ -920,11 +932,11 @@ namespace ProyectoMicroSQL.Controllers
                         }
                         if (ConteoFinal < 2)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " trata de buscar un valor nulo"), true); return;
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " trata de buscar un valor nulo"), true); return;
                         }
                         if (InstruccionesSeparadas3[1].Trim().Length != InstruccionesSeparadas3[1].Trim().Substring(0, ConteoFinal + 1).Length)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee valores adicionales no permitidos"), true); return;
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee valores adicionales no permitidos"), true); return;
                         }
                         InstruccionesSeparadas3[1] = InstruccionesSeparadas3[1].Trim().Substring(0, ConteoFinal + 1);
                     }
@@ -963,7 +975,7 @@ namespace ProyectoMicroSQL.Controllers
                     }
                     if (!ExisteColumna)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", la columnaa buscar no existe"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + ", la columnaa buscar no existe"), true); return;
                     }
 
                     bool ExisteTipoDato = false;
@@ -999,26 +1011,26 @@ namespace ProyectoMicroSQL.Controllers
                                 ExisteTipoDato = true;
                                 if (dato.Length > 100)
                                 {
-                                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " desea buscar un valor VARCHAR de mas de 100 posiciones"), true); return;
+                                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " desea buscar un valor VARCHAR de mas de 100 posiciones"), true); return;
                                 }
                             }
                         }
                     }
                     if (!ExisteTipoDato)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", desea  buscar un tipo de dato no reconocido"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + ", desea  buscar un tipo de dato no reconocido"), true); return;
                     }
 
                     if (tipoDato != TipoColumnaEnArchivo)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", desea  buscar un tipo de dato que no concuerda con la tabla"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + ", desea  buscar un tipo de dato que no concuerda con la tabla"), true); return;
                     }
 
-                    if (tipoDato != Datos.Instance.ListaAtributos.ElementAt(1))
+                    if (tipoDato != Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR))
                     {
                         if (InstruccionesSeparadas3[1].Trim().Split(' ').Length > 1)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", posee un error de escritura, por favor revisar [columna=dato]"), true); return;
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + ", posee un error de escritura, por favor revisar [columna=dato]"), true); return;
                         }
                     }
                     string[] ArregloColumnaRepetidas = new string[ColumnasSolicitadas.Length];
@@ -1035,7 +1047,7 @@ namespace ProyectoMicroSQL.Controllers
                         {
                             if (ColumnasSolicitadas[i].Trim().ToUpper() == ArregloColumnaRepetidas[j].Trim())
                             {
-                                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee columnas repetidas"), true); return;
+                                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee columnas repetidas"), true); return;
                             }
                         }
                         for (int k = 0; k < ColumnaEnArchivo.Count; k++)
@@ -1048,7 +1060,7 @@ namespace ProyectoMicroSQL.Controllers
                         }
                         if (!ColumnaExisten)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee una columna mal colocada, por favor revisa el orden de insercion de codigo"), true); return;
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee una columna mal colocada, por favor revisa el orden de insercion de codigo"), true); return;
                         }
                         ArregloColumnaRepetidas[i] = ColumnasSolicitadas[i].ToUpper();
                     }
@@ -1108,7 +1120,7 @@ namespace ProyectoMicroSQL.Controllers
                     //}
                     //if (!ExisteTabla)
                     //{
-                    //    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", la tabla no existe."), true); return;
+                    //    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + ", la tabla no existe."), true); return;
                     //}
                     var tabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + nombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     Datos.Instance.NombreTabla = nombreTabla;
@@ -1136,7 +1148,7 @@ namespace ProyectoMicroSQL.Controllers
                         {
                             if (ColumnasSolicitadas[i].Trim().ToUpper() == ArregloColumnasRepetidas[j].Trim())
                             {
-                                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee una columna repetida"), true); return;
+                                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee una columna repetida"), true); return;
                             }
                         }
                         for (int k = 0; k < ColumnaEnArchivo.Count; k++)
@@ -1148,7 +1160,7 @@ namespace ProyectoMicroSQL.Controllers
                         }
                         if (!ExisteTodasColumnas)
                         {
-                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " posee una columna que no esta en la posicion correcta"), true); return;
+                            Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(SELECToPrimary_Key).Key + " posee una columna que no esta en la posicion correcta"), true); return;
                         }
                         ArregloColumnasRepetidas[i] = ColumnasSolicitadas[i].ToUpper();
                     }
@@ -1177,10 +1189,10 @@ namespace ProyectoMicroSQL.Controllers
         //-----------------------------Función de SQL que borra una tabla de MiniSQL-----------------------------
         public void DropTabla(string Valor)
         {
-            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key, "");//Quita la palabra reservada para la funciónn
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(DROP_TABLE).Key, "");//Quita la palabra reservada para la funciónn
             if (Valor.Trim().Split(' ').Length > 1)//Se comprueba que se tenga solo el nombre de la tabla que se eliminará
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key + " debe de poseer el nombre de la tabla que se eliminará"), true); return;
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DROP_TABLE).Key + " debe de poseer el nombre de la tabla que se eliminará"), true); return;
             }
             string[] NombreTabla = Datos.Instance.ListaTablasExistentes.ToArray();//Existencia de la tabla que se desea eliminar
             bool ExistenciaTabla = false;
@@ -1216,36 +1228,36 @@ namespace ProyectoMicroSQL.Controllers
         #region Eliminar
         public void Eliminar(string Valor)
         {
-            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key, "").Trim();//Eliminar la palabra reservada para la acción
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key, "").Trim();//Eliminar la palabra reservada para la acción
             if (Valor.Split(' ').Length < 2)//Comprueba que tenga almenos 2 campos
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " está incompleto"), true); return;
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " está incompleto"), true); return;
             }
-            if (Valor.Split(' ')[0].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(1).Key)//Sintaxis erronea o no completa
+            if (Valor.Split(' ')[0].Trim() != Datos.Instance.diccionarioColeccionada.ElementAt(FROMoVARCHAR).Key)//Sintaxis erronea o no completa
             {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " sintaxis incorrecta o incompleta"), true); return;
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " sintaxis incorrecta o incompleta"), true); return;
             }
             string NombreTabla = Valor.Split(' ')[1].Trim();
             if (Valor.Split(' ').Length > 2)//Se comprueba si contiene WHERE
             {
-                if (Valor.Split(' ')[2] != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)//Cuando tenga
+                if (Valor.Split(' ')[2] != Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key)//Cuando tenga
                 {
-                    Danger(string.Format("Despues de " + Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " debe de ir " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key), true); return;
+                    Danger(string.Format("Despues de " + Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " debe de ir " + Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key), true); return;
                 }
-                string[] DivValor2 = Regex.Split(Valor.Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                string[] DivValor2 = Regex.Split(Valor.Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key);
                 DivValor2[1] = DivValor2[1].Trim();
                 string[] DivValor3 = Regex.Split(DivValor2[1].Trim(), "=");//ID=1
                 if (DivValor3.Length != 2)
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " error en la condición"), true); return;
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " error en la condición"), true); return;
                 }
                 if (DivValor3[0].Trim() == "")
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " no hay nada del lado izquierdo a la igualación"), true); return;
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " no hay nada del lado izquierdo a la igualación"), true); return;
                 }
                 if (DivValor3[1].Trim() == "")
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " no hay nada del lado derecho a la igualación"), true); return;
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " no hay nada del lado derecho a la igualación"), true); return;
                 }
                 string Columna = DivValor3[0].Trim();
                 int Final = 0;
@@ -1265,17 +1277,16 @@ namespace ProyectoMicroSQL.Controllers
                     }
                     if (Final < 2)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " buscador en WHERE es nulo"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " buscador en WHERE es nulo"), true); return;
                     }
                     if (DivValor3[1].Trim().Length != DivValor3[1].Trim().Substring(0, Final + 1).Length)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + ", por favor escribir solamente [Columna = Dato]"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + ", por favor escribir solamente [Columna = Dato]"), true); return;
                     }
                     DivValor3[1] = DivValor3[1].Trim().Substring(0, Final + 1);
 
                 }
-            //---------------------------Posibles errores de sintaxis---------------------------
-                     
+            //---------------------------Posibles errores de sintaxis---------------------------                     
             
                 string DatoVarchar = "";
                 if (VarChar)
@@ -1286,6 +1297,7 @@ namespace ProyectoMicroSQL.Controllers
                 {
                     DatoVarchar = DivValor3[1].Trim().Split(' ')[0];
                 }
+                string TipoDato = "";
 
                 //Comprobar que exista la columna
                 var GTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -1302,8 +1314,8 @@ namespace ProyectoMicroSQL.Controllers
                 GTabla.Close();
 
                 VarChar = false;
-                string TipoColumArchivo = "";
-                int ColumPos = -1;
+                var TipoColumArchivo = "";
+                var ColumPos = -1;
 
                 for (int i = 0; i < ColumnaArchivo.Count(); i++)
                 {
@@ -1316,22 +1328,19 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 if (!VarChar)
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " la columna no existe"), true); return;
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " la columna no existe"), true); return;
                 }
                 VarChar = false;
-
-                string TipoDato = "";
-                /*REVISAR ESTA PARTE DE CODIGO
-                 * CORREGIR*/
+                
                 if (TipoDato != TipoColumArchivo)
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " los campos en la condición no tienen el mismo tipo que la columna"), true); return;
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " los campos en la condición no tienen el mismo tipo que la columna"), true); return;
                 }
-                if (TipoDato != Datos.Instance.ListaAtributos.ElementAt(2))
+                if (TipoDato != Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR))
                 {
                     if (DivValor3[1].Trim().Split(' ').Length > 1)
                     {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + ", por favor escribir [Columna = Dato]"), true); return;
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + ", por favor escribir [Columna = Dato]"), true); return;
                     }
                 }
                 VarChar = false;
@@ -1341,7 +1350,7 @@ namespace ProyectoMicroSQL.Controllers
                 var TablaEliminar = new BTreeDLL.Tabla(int.Parse(DatoVarchar), null);
                 if (ArbolACrear.SearchElementTree(TablaEliminar) == null)
                 {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " el ID no existe en el arbol"), true); return;
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " el ID no existe en el arbol"), true); return;
                 }
                 if (Columna == "ID")//Eliminar elemento por ID
                 {
@@ -1426,7 +1435,7 @@ namespace ProyectoMicroSQL.Controllers
 
                         if (Valor.Length > 100)
                         {
-                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " campo VARCHAR(100) pero su tamaño es " + Valor.Length);
+                            throw new InvalidOperationException(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " campo VARCHAR(100) pero su tamaño es " + Valor.Length);
                         }
                     }
                 }

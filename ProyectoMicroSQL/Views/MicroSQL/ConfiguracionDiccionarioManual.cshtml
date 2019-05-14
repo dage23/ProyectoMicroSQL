@@ -1,7 +1,5 @@
 ﻿@model ProyectoMicroSQL.Models.Diccionario
 @{
-    /**/
-
     ViewBag.Title = "Configuracion";
 }
 
@@ -12,78 +10,78 @@
 {<table class="table">
         <tr>
             <th>
-                SELECT - @Html.DisplayNameFor(model => model.FuncionSelect)
+                SELECT
             </th>
 
             <th>
-                @Html.EditorFor(model => model.FuncionSelect, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.FuncionSelect, new { htmlAttributes = new { @class = "form-control", placeholder = "Función Select" } })
             </th>
 
             <th>
-                FROM - @Html.DisplayNameFor(model => model.FuncionFrom)
+                FROM 
             </th>
 
             <th>
-                @Html.EditorFor(model => model.FuncionFrom, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.FuncionFrom, new { htmlAttributes = new { @class = "form-control", placeholder = "Función From" } })
             </th>
 
             <th>
-                DELETE - @Html.DisplayNameFor(model => model.FuncionDelete)
+                DELETE
             </th>
 
             <th>
-                @Html.EditorFor(model => model.FuncionDelete, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.FuncionDelete, new { htmlAttributes = new { @class = "form-control", placeholder = "Función Delete" } })
             </th>
         </tr>
 
         <tr>
             <th>
-                DROP TABLE - @Html.DisplayNameFor(model => model.FuncionDropTable)
+                DROP TABLE
             </th>
 
             <th>
-                @Html.EditorFor(model => model.FuncionDropTable, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.FuncionDropTable, new { htmlAttributes = new { @class = "form-control", placeholder = "Función Drop Table" } })
             </th>
             <th>
-                WHERE - @Html.DisplayNameFor(model => model.FuncionWhere)
-            </th>
-
-            <th>
-                @Html.EditorFor(model => model.FuncionWhere, new { htmlAttributes = new { @class = "form-control" } })
+                WHERE
             </th>
 
             <th>
-                CREATE TABLE - @Html.DisplayNameFor(model => model.FuncionCreateTable)
+                @Html.EditorFor(model => model.FuncionWhere, new { htmlAttributes = new { @class = "form-control", placeholder = "Función Where" } })
             </th>
 
             <th>
-                @Html.EditorFor(model => model.FuncionCreateTable, new { htmlAttributes = new { @class = "form-control" } })
+                CREATE TABLE
+            </th>
+
+            <th>
+                @Html.EditorFor(model => model.FuncionCreateTable, new { htmlAttributes = new { @class = "form-control", placeholder = "Función Create Table" } })
             </th>
         </tr>
 
         <tr>
             <th>
-                INSERT INTO - @Html.DisplayNameFor(model => model.FuncionInsertInto)
+                INSERT INTO
             </th>
 
             <th>
-                @Html.EditorFor(model => model.FuncionInsertInto, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.FuncionInsertInto, new { htmlAttributes = new { @class = "form-control", placeholder = "Función Insert Into" } })
             </th>
 
             <th>
-                VALUE - @Html.DisplayNameFor(model => model.FuncionValue)
+                VALUES
             </th>
 
             <th>
-                @Html.EditorFor(model => model.FuncionValue, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.FuncionValue, new { htmlAttributes = new { @class = "form-control", placeholder = "Función Value" } })
             </th>
 
             <th>
-                GO - @Html.DisplayNameFor(model => model.FuncionGo)
+                GO
             </th>
 
             <th>
-                @Html.EditorFor(model => model.FuncionGo, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.FuncionGo, new { htmlAttributes = new { @class = "form-control", placeholder = "Función gO" } })
             </th>
         </tr>
     </table>
@@ -91,7 +89,7 @@
 }
 
 <h1>Importacion de Diccionario</h1>
-@using (Html.BeginForm("ImportarArchivo", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("ImportarArchivo", "MicroSQL", FormMethod.Post, new { enctype = "multipart/form-data", placeholder = "Función Select" }))
 {
     <input type="file" name="Post" />
     <input type="submit" value="Importar" class="btn btn-default" />
