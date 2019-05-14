@@ -1185,7 +1185,7 @@ namespace ProyectoMicroSQL.Controllers
         }
         #endregion
 
-        #region  Drop
+        #region  DROP
         //-----------------------------Función de SQL que borra una tabla de MiniSQL-----------------------------
         public void DropTabla(string Valor)
         {
@@ -1225,7 +1225,7 @@ namespace ProyectoMicroSQL.Controllers
         }
         #endregion
 
-        #region Eliminar
+        #region ELIMINAR
         public void Eliminar(string Valor)
         {
             Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key, "").Trim();//Eliminar la palabra reservada para la acción
@@ -1297,7 +1297,6 @@ namespace ProyectoMicroSQL.Controllers
                 {
                     DatoVarchar = DivValor3[1].Trim().Split(' ')[0];
                 }
-                string TipoDato = "";/*VARIABLE POR CORREGIR, REVISAR CODIGO*/
 
                 //Comprobar que exista la columna
                 var GTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -1331,7 +1330,8 @@ namespace ProyectoMicroSQL.Controllers
                     Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " la columna no existe"), true); return;
                 }
                 VarChar = false;
-                
+
+                var TipoDato = saberTipo(DatoVarchar);
                 if (TipoDato != TipoColumArchivo)
                 {
                     Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(DELETEoINT).Key + " los campos en la condición no tienen el mismo tipo que la columna"), true); return;
