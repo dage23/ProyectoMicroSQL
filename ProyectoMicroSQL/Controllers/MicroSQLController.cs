@@ -1226,19 +1226,6 @@ namespace ProyectoMicroSQL.Controllers
                 Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " sintaxis incorrecta o incompleta"), true); return;
             }
             string NombreTabla = Valor.Split(' ')[1].Trim();
-            string[] Tablas = Datos.Instance.ListaTablasExistentes.ToArray();
-            bool ExistenciaTabla = false;//Verificar que la tabla exista
-            //for (int i = 0; i < Tablas.Length; i++)
-            //{
-            //    if (Tablas[i] == NombreTabla)
-            //    {
-            //        ExistenciaTabla = true;
-            //    }
-            //}
-            //if (!ExistenciaTabla)
-            //{
-            //    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " la tabla no existe"), true); return;
-            //}
             if (Valor.Split(' ').Length > 2)//Se comprueba si contiene WHERE
             {
                 if (Valor.Split(' ')[2] != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)//Cuando tenga
@@ -1264,34 +1251,32 @@ namespace ProyectoMicroSQL.Controllers
                 int Final = 0;
                 int Conteo = 0;
                 bool VarChar = false;
-            }
-
-
-            //---------------------------Posibles errores de sintaxis---------------------------
-            
-
-            
-            if (DivValor3[1].Trim()[0] == '\'')
-            {
-                VarChar = true;
-                for (int i = 0; i < DivValor3[1].Trim().Length; i++)
+                if (DivValor3[1].Trim()[0] == '\'')
                 {
-                    Conteo++;
-                    if (Conteo > 1)
+                    VarChar = true;
+                    for (int i = 0; i < DivValor3[1].Trim().Length; i++)
                     {
-                        Final = i;
-                        break;
+                        Conteo++;
+                        if (Conteo > 1)
+                        {
+                            Final = i;
+                            break;
+                        }
                     }
+                    if (Final < 2)
+                    {
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " buscador en WHERE es nulo"), true); return;
+                    }
+                    if (DivValor3[1].Trim().Length != DivValor3[1].Trim().Substring(0, Final + 1).Length)
+                    {
+                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + ", por favor escribir solamente [Columna = Dato]"), true); return;
+                    }
+                    DivValor3[1] = DivValor3[1].Trim().Substring(0, Final + 1);
+
                 }
-                if (Final < 2)
-                {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " buscador en WHERE es nulo"), true); return;
-                }
-                if (DivValor3[1].Trim().Length != DivValor3[1].Trim().Substring(0, Final + 1).Length)
-                {
-                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + ", por favor escribir solamente [Columna = Dato]"), true); return;
-                }
-                DivValor3[1] = DivValor3[1].Trim().Substring(0, Final + 1);
+            //---------------------------Posibles errores de sintaxis---------------------------
+                     
+            
                 string DatoVarchar = "";
                 if (VarChar)
                 {
@@ -1336,6 +1321,8 @@ namespace ProyectoMicroSQL.Controllers
                 VarChar = false;
 
                 string TipoDato = "";
+                /*REVISAR ESTA PARTE DE CODIGO
+                 * CORREGIR*/
                 if (TipoDato != TipoColumArchivo)
                 {
                     Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " los campos en la condición no tienen el mismo tipo que la columna"), true); return;
