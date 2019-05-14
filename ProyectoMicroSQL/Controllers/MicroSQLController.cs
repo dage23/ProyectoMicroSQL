@@ -24,6 +24,7 @@ namespace ProyectoMicroSQL.Controllers
         int VALUES = 7;
         int GO = 8;
         int UPDATE = 9;
+        int SET = 10;
         #endregion
 
         #region Diccionarios
@@ -1397,6 +1398,41 @@ namespace ProyectoMicroSQL.Controllers
                 ArbolCrear.CloseStream();
             }
             Success(string.Format("Eliminar exitoso"), true);
+        }
+        #endregion
+
+        #region UPDATE
+        public void Update(string Valor)
+        {
+            Valor = Valor.Replace(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key, "").Trim();
+            var NombreTablaActu = Valor.Split(' ')[0].Trim();
+            string[] Tabla = Datos.Instance.ListaTablasExistentes.ToArray();
+            bool EsTabla = false;
+            for (int i = 0; i < NombreTablaActu.Length; i++)//Se recorre para comprobar si tabla existe
+            {
+                if (Tabla[i] == NombreTablaActu.ToUpper())
+                {
+                    EsTabla = true;
+                }
+            }
+            if (!EsTabla)//Tabla no existe
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " el nombre de la tabla no existe"), true); return;
+            }
+            string[] ValorDiv = Regex.Split(Valor.Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(SET).Key);
+            if (ValorDiv.Length == 1)//No contiene SET en sintaxis
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no contiene SET en la sintaxis"), true); return;
+            }
+            if (ValorDiv[0].Trim().Split(' ').Length > 1)//Comprueba que el campo sea UPDATE en el tercer campo
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " debe de ser el tercer campo"), true); return;
+            }
+            string[] ValorDiv2 = Regex.Split(Valor.Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(WHEREoDATETIME).Key);//Se va a comprobar que contenga 'WHERE'
+            if (ValorDiv2.Length == 1)
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no encuentra 'WHERE' en la sintaxis"), true); return;
+            }
         }
         #endregion
 
