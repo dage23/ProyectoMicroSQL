@@ -71,15 +71,95 @@ namespace ProyectoMicroSQL.Controllers
                 FuncionGo = collection["FuncionGo"]
             };
             Datos.Instance.diccionarioColeccionada.Clear();
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionSelect, "SELECT");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionFrom, "FROM");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDelete, "DELETE");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionWhere, "WHERE");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionCreateTable, "CREATE TABLE");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDropTable, "DROP TABLE");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionInsertInto, "INSERT INTO");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
-            Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionGo, "GO");
+            if (DiccionarioVar.FuncionSelect=="")
+            {
+                DiccionarioVar.FuncionSelect = "SELECT";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionSelect, "SELECT");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionSelect, "SELECT");
+            }
+
+            if (DiccionarioVar.FuncionFrom == "")
+            {
+                DiccionarioVar.FuncionFrom = "FROM";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionFrom, "FROM");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionFrom, "FROM");
+            }
+
+            if (DiccionarioVar.FuncionDelete == "")
+            {
+                DiccionarioVar.FuncionDelete = "DELETE";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDelete, "DELETE");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDelete, "DELETE");
+            }
+
+            if (DiccionarioVar.FuncionWhere == "")
+            {
+                DiccionarioVar.FuncionWhere = "WHERE";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionWhere, "WHERE");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionWhere, "WHERE");
+            }
+
+            if (DiccionarioVar.FuncionCreateTable == "")
+            {
+                DiccionarioVar.FuncionCreateTable = "CREATE TABLE";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionCreateTable, "CREATE TABLE");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionCreateTable, "CREATE TABLE");
+            }
+
+            if (DiccionarioVar.FuncionDropTable == "")
+            {
+                DiccionarioVar.FuncionDropTable = "DROP TABLE";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDropTable, "DROP TABLE");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionDropTable, "DROP TABLE");
+            }
+
+            if (DiccionarioVar.FuncionInsertInto == "")
+            {
+                DiccionarioVar.FuncionInsertInto = "INSERT INTO";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionInsertInto, "INSERT INTO");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionInsertInto, "INSERT INTO");
+            }
+
+            if (DiccionarioVar.FuncionValue == "")
+            {
+                DiccionarioVar.FuncionValue = "VALUE";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionValue, "VALUE");
+            }
+
+            if (DiccionarioVar.FuncionGo == "")
+            {
+                DiccionarioVar.FuncionGo = "GO";
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionGo, "GO");
+            }
+            else
+            {
+                Datos.Instance.diccionarioColeccionada.Add(DiccionarioVar.FuncionGo, "GO");
+            }
             Success(string.Format("Definiciones editadas exitosamente"), true);
             return RedirectToAction("IngresarSQL");
         }
@@ -129,28 +209,31 @@ namespace ProyectoMicroSQL.Controllers
                     //Crear Tabla   
                     CrearTablaYArbol(ArregloOperaciones[i]);
                 }
-                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key))
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(6).Key))
                 {
                     //Insertar en Tabla   
                     InsertarEnTablaArbol(ArregloOperaciones[i]);
                 }
-                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key))
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key))
                 {
                     //Seleccionar de Tabla   
                     SeleccionarDatosParaMostrar(ArregloOperaciones[i]);
                 }
-                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key))
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key))
                 {
                     //Eliminar elemento
                     Eliminar(ArregloOperaciones[i]);
                 }
-                if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key))
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(5).Key))
                 {
                     //Eliminar Archivo Tabla
                     DropTabla(ArregloOperaciones[i]);
                 }
+                else
+                {
+                    Danger("Nombre de instrucción no se encuentra en el diccionario", true);
+                }
             }
-            Danger("Nombre de instrucción no se encuentra en el diccionario", true);
             return View("DatosSQL");
         }
         #endregion
@@ -197,25 +280,25 @@ namespace ProyectoMicroSQL.Controllers
             }
             //-----------------------------Errores tipos de datos--------------------
             //Mas de 3 varchar
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(1))).Count >= 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(1))).Count > 3)
             {
                 Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(1)), true);
                 return;
             }
             //Mas de 3 int
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(2))).Count >= 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(2))).Count > 3)
             {
                 Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(2)), true);
                 return;
             }
             //Mas de 3 datetime
-            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(3))).Count >= 3)
+            if (Regex.Matches(Valor, Regex.Escape(Datos.Instance.ListaAtributos.ElementAt(3))).Count > 3)
             {
                 Danger(string.Format("Contiene mas de tres " + Datos.Instance.ListaAtributos.ElementAt(3)), true);
                 return;
             }
             //--------------------------------Operaciones con Primary key---------------------------------
-            var TamanoKey = Datos.Instance.ListaAtributos.ElementAt(0).Trim().Split(' ').Length;
+            int TamanoKey = Datos.Instance.ListaAtributos.ElementAt(0).Trim().Split(' ').Length;
             //--------------------------------Errores--------------------------------------------------
             if (ValoresTabla[0].Split(' ').Length != 2 + TamanoKey)
             {
@@ -253,9 +336,9 @@ namespace ProyectoMicroSQL.Controllers
                 return;
             }
             //----------------------------------------Creacion de archivos------------------------------
-            List<string> ListaNombreColumna = new List<string>();
-            List<string> ListaTipoColumnas = new List<string>();
-            string[] ArregloNombreColumnas = new string[9];
+            var ListaNombreColumna = new List<string>();
+            var ListaTipoColumnas = new List<string>();
+            var ArregloNombreColumnas = new string[9];
             ArregloNombreColumnas[0] = "ID";
             ListaNombreColumna.Add("ID");
             ListaTipoColumnas.Add("INT");
@@ -338,8 +421,8 @@ namespace ProyectoMicroSQL.Controllers
         //-------------------------------Crear archivo.tabla-----------
         private void CrearArchivoTabla(List<string> NombreColumnas, List<string> TipoColumnas, string Nombre)
         {
-            FileStream ArchivoTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + Nombre + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            StreamWriter Escritor = new StreamWriter(ArchivoTabla);
+            var ArchivoTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + Nombre + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            var Escritor = new StreamWriter(ArchivoTabla);
             Escritor.WriteLine(Nombre);
             for (int i = 0; i < NombreColumnas.Count; i++)
             {
@@ -359,7 +442,7 @@ namespace ProyectoMicroSQL.Controllers
         //-------------------------------Crear archivo.arbolb-----------
         private void CrearArbolDeTabla(string NombreArbol)
         {
-            BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreArbol + ".arbolb"), 8);
+            var CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreArbol + ".arbolb"), 5);
             CrearArbol.CloseStream();
         }
         #endregion
@@ -382,24 +465,24 @@ namespace ProyectoMicroSQL.Controllers
                 return;
             }
             string NombreTablaInsertar = SeparadorComas[0];
-            bool TablaEncontradaEnLista = false;
-            for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count(); i++)
-            {
-                if ((NombreTablaInsertar.ToUpper() == Datos.Instance.ListaTablasExistentes[i]))
-                {
-                    TablaEncontradaEnLista = true;
-                    break;
-                }
-            }
-            if (!TablaEncontradaEnLista)
-            {
-                Danger(string.Format("El nombre " + NombreTablaInsertar + " no existe en ninguna tabla"), true);
-                return;
-            }
-            FileStream TablaEnArhivo = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTablaInsertar + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            StreamReader Lector = new StreamReader(TablaEnArhivo);
-            List<string> ColumnaEnArchivo = new List<string>();
-            List<string> TipoEnArchivo = new List<string>();
+            //bool TablaEncontradaEnLista = false;
+            //for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count(); i++)
+            //{
+            //    if ((NombreTablaInsertar.ToUpper() == Datos.Instance.ListaTablasExistentes[i]))
+            //    {
+            //        TablaEncontradaEnLista = true;
+            //        break;
+            //    }
+            //}
+            //if (!TablaEncontradaEnLista)
+            //{
+            //    Danger(string.Format("El nombre " + NombreTablaInsertar + " no existe en ninguna tabla"), true);
+            //    return;
+            //}
+            var TablaEnArhivo = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTablaInsertar + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            var Lector = new StreamReader(TablaEnArhivo);
+            var ColumnaEnArchivo = new List<string>();
+            var TipoEnArchivo = new List<string>();
             string TipoActual;
             Lector.ReadLine();
             while ((TipoActual = Lector.ReadLine()) != null)
@@ -449,7 +532,7 @@ namespace ProyectoMicroSQL.Controllers
             }
 
 
-            List<object> ListaObjetosAInsertar = new List<object>();
+            var ListaObjetosAInsertar = new List<object>();
             string TipoDatoInsertar = "";
             int IDInsertar = 0;
             bool TipoDatoExiste = false;
@@ -524,8 +607,8 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             //Si todo esta bien
-            BTreeDLL.Tabla TablaAInsertarEnArbol = new BTreeDLL.Tabla(IDInsertar, ListaObjetosAInsertar);
-            BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolACrear = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTablaInsertar + ".arbolb"), 8);
+            var TablaAInsertarEnArbol = new BTreeDLL.Tabla(IDInsertar, ListaObjetosAInsertar);
+            var ArbolACrear = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTablaInsertar + ".arbolb"), 5);
 
             ArbolACrear.AddElement(TablaAInsertarEnArbol);
             ArbolACrear.CloseStream();
@@ -556,19 +639,19 @@ namespace ProyectoMicroSQL.Controllers
                 string[] InstuccionesSeparadas = Regex.Split(Instucciones, Datos.Instance.diccionarioColeccionada.ElementAt(1).Key);
                 bool ExisteTabla = false;
                 string NombreDeTabla = InstuccionesSeparadas[1].Trim().Split(' ')[0];
-                for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count; i++)
-                {
-                    if (Datos.Instance.ListaTablasExistentes[i] == NombreDeTabla.ToUpper())
-                    {
-                        ExisteTabla = true;
-                        break;
-                    }
-                }
-                if (!ExisteTabla)
-                {
-                    Danger(string.Format("En el comando " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " declara una tabla inexistente"), true);
-                    return;
-                }
+                //for (int i = 0; i < Datos.Instance.ListaTablasExistentes.Count; i++)
+                //{
+                //    if (Datos.Instance.ListaTablasExistentes[i] == NombreDeTabla.ToUpper())
+                //    {
+                //        ExisteTabla = true;
+                //        break;
+                //    }
+                //}
+                //if (!ExisteTabla)
+                //{
+                //    Danger(string.Format("En el comando " + Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + " declara una tabla inexistente"), true);
+                //    return;
+                //}
                 //Posee escrito where
                 if (InstuccionesSeparadas[1].Trim().Split(' ').Length > 1)
                 {
@@ -641,8 +724,8 @@ namespace ProyectoMicroSQL.Controllers
                     }
                     string TipoDatoABuscar = "";
                     //------------------------Existe Columna------------------
-                    FileStream ArchivoDeTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreDeTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                    StreamReader LectorTabla = new StreamReader(ArchivoDeTabla);
+                    var ArchivoDeTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreDeTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    var LectorTabla = new StreamReader(ArchivoDeTabla);
                     ColumnaEnArchivo = new List<string>();
                     TipoDatoEnArchivo = new List<string>();
                     string TipoActualDato;
@@ -726,9 +809,9 @@ namespace ProyectoMicroSQL.Controllers
                         }
                     }
                     //-------------------------------select*from where id metodo2-------------
-                    BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreDeTabla + ".arbolb"), 8);
+                    var CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreDeTabla + ".arbolb"), 5);
                     List<BTreeDLL.Tabla> ListaDatos = CrearArbol.goOverTreeInOrder();
-                    List<BTreeDLL.Tabla> ListaParaTabla = new List<BTreeDLL.Tabla>();
+                    var ListaParaTabla = new List<BTreeDLL.Tabla>();
                     for (int i = 0; i < ListaDatos.Count; i++)
                     {
                         for (int j = 0; j < ListaDatos.ElementAt(i).Objetos.Count; j++)
@@ -749,7 +832,7 @@ namespace ProyectoMicroSQL.Controllers
                             }
                         }
                     }
-                    TablaAMostrar Tabla = new TablaAMostrar();
+                    var Tabla = new TablaAMostrar();
                     Tabla.NombreColumnasArchivo = ColumnaEnArchivo;
                     Tabla.NombreColumnasAMostrar = ColumnaEnArchivo;
                     Tabla.ListaDatos = ListaParaTabla;
@@ -759,10 +842,10 @@ namespace ProyectoMicroSQL.Controllers
                 else
                 {
                     //-------------------------------select*from metodo 3---------------
-                    BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolCreadoArchivo = new BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreDeTabla + ".arbolb"), 8);
+                    var ArbolCreadoArchivo = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreDeTabla + ".arbolb"), 5);
                     List<BTreeDLL.Tabla> ListaDatos = ArbolCreadoArchivo.goOverTreeInOrder();
-                    FileStream ArchivoTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreDeTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                    StreamReader ArchivoLector = new StreamReader(ArchivoTabla);
+                    var ArchivoTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreDeTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    var ArchivoLector = new StreamReader(ArchivoTabla);
                     ColumnaEnArchivo = new List<string>();
                     TipoDatoEnArchivo = new List<string>();
                     string DatoActual;
@@ -772,7 +855,7 @@ namespace ProyectoMicroSQL.Controllers
                         ColumnaEnArchivo.Add(DatoActual.Split('|')[0]);
                         TipoDatoEnArchivo.Add(DatoActual.Split('|')[1]);
                     }
-                    TablaAMostrar Tabla = new TablaAMostrar();
+                    var Tabla = new TablaAMostrar();
                     Tabla.NombreColumnasArchivo = ColumnaEnArchivo;
                     Tabla.NombreColumnasAMostrar = ColumnaEnArchivo;
                     Tabla.ListaDatos = ListaDatos;
@@ -855,9 +938,9 @@ namespace ProyectoMicroSQL.Controllers
                         dato = InstruccionesSeparadas3[1].Trim().Split(' ')[0];
                     }
                     string tipoDato = "";
-                    FileStream ArchivoDeTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    var ArchivoDeTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     Datos.Instance.NombreTabla = NombreTabla;
-                    StreamReader LectorTabla = new StreamReader(ArchivoDeTabla);
+                    var LectorTabla = new StreamReader(ArchivoDeTabla);
                     ColumnaEnArchivo = new List<string>();
                     TipoDatoEnArchivo = new List<string>();
                     string TipoActualDato;
@@ -974,10 +1057,10 @@ namespace ProyectoMicroSQL.Controllers
                     {
                         ColumnasSolicitadas[i] = ColumnasSolicitadas[i].Trim();
                     }
-                    BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"), 8);
+                    var CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"), 5);
                     Datos.Instance.NombreTabla = NombreTabla;
                     List<BTreeDLL.Tabla> Listadatos = CrearArbol.goOverTreeInOrder();
-                    List<BTreeDLL.Tabla> DatosTabla = new List<Tabla>();
+                    var DatosTabla = new List<BTreeDLL.Tabla>();
                     //Datos a para tabla
                     for (int i = 0; i < Listadatos.Count; i++)
                     {
@@ -1003,7 +1086,7 @@ namespace ProyectoMicroSQL.Controllers
                     {
                         ColumnasSolicitadas[i] = ColumnasSolicitadas[i].ToUpper();
                     }
-                    TablaAMostrar tablaAMostrar = new TablaAMostrar();
+                    var tablaAMostrar = new TablaAMostrar();
                     tablaAMostrar.NombreColumnasArchivo = ColumnaEnArchivo;
                     tablaAMostrar.NombreColumnasAMostrar = ColumnasSolicitadas.ToList();
                     tablaAMostrar.ListaDatos = DatosTabla;
@@ -1016,20 +1099,20 @@ namespace ProyectoMicroSQL.Controllers
                     bool ExisteTabla = false;
                     string nombreTabla = InstruccionesSeparadas[1].Trim().Split(' ')[0];
                     string[] tablas = Datos.Instance.ListaTablasExistentes.ToArray();
-                    for (int i = 0; i < tablas.Length; i++)
-                    {
-                        if (tablas[i] == nombreTabla.ToUpper())
-                        {
-                            ExisteTabla = true;
-                        }
-                    }
-                    if (!ExisteTabla)
-                    {
-                        Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", la tabla no existe."), true); return;
-                    }
-                    FileStream tabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + nombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    //for (int i = 0; i < tablas.Length; i++)
+                    //{
+                    //    if (tablas[i] == nombreTabla.ToUpper())
+                    //    {
+                    //        ExisteTabla = true;
+                    //    }
+                    //}
+                    //if (!ExisteTabla)
+                    //{
+                    //    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(0).Key + ", la tabla no existe."), true); return;
+                    //}
+                    var tabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + nombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     Datos.Instance.NombreTabla = nombreTabla;
-                    StreamReader Lector = new StreamReader(tabla);
+                    var Lector = new StreamReader(tabla);
                     ColumnaEnArchivo = new List<string>();
                     TipoDatoEnArchivo = new List<string>();
                     string[] ArregloColumnasRepetidas = new string[ColumnasSolicitadas.Length];
@@ -1073,10 +1156,10 @@ namespace ProyectoMicroSQL.Controllers
                     {
                         ColumnasSolicitadas[i] = ColumnasSolicitadas[i].ToUpper();
                     }
-                    BTreeDLL.BTree<string, BTreeDLL.Tabla> CrearArbol = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + nombreTabla + ".arbolb"), 8);
+                    var CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + nombreTabla + ".arbolb"), 5);
                     Datos.Instance.NombreTabla = nombreTabla;
                     List<BTreeDLL.Tabla> datosTablas = CrearArbol.goOverTreeInOrder();
-                    TablaAMostrar tablaAMostrar = new TablaAMostrar();
+                    var tablaAMostrar = new TablaAMostrar();
                     tablaAMostrar.NombreColumnasArchivo = ColumnaEnArchivo;
                     tablaAMostrar.NombreColumnasAMostrar = ColumnasSolicitadas.ToList();
                     tablaAMostrar.ListaDatos = datosTablas;
@@ -1085,6 +1168,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
             }
             ConvertirEnLista();
+            RedirectToAction("VerTablaSelect");
             Success(string.Format("Operacion select exitosa, para revisar su seleccion dirijase a -Tabla Seleccionada-"), true);
         }
         #endregion
@@ -1144,46 +1228,49 @@ namespace ProyectoMicroSQL.Controllers
             string NombreTabla = Valor.Split(' ')[1].Trim();
             string[] Tablas = Datos.Instance.ListaTablasExistentes.ToArray();
             bool ExistenciaTabla = false;//Verificar que la tabla exista
-            for (int i = 0; i < Tablas.Length; i++)
-            {
-                if (Tablas[i] == NombreTabla)
-                {
-                    ExistenciaTabla = true;
-                }
-            }
-            if (!ExistenciaTabla)
-            {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " la tabla no existe"), true); return;
-            }
-            if (Valor.Split(' ').Length < 2)//Se comprueba si contiene WHERE
+            //for (int i = 0; i < Tablas.Length; i++)
+            //{
+            //    if (Tablas[i] == NombreTabla)
+            //    {
+            //        ExistenciaTabla = true;
+            //    }
+            //}
+            //if (!ExistenciaTabla)
+            //{
+            //    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " la tabla no existe"), true); return;
+            //}
+            if (Valor.Split(' ').Length > 2)//Se comprueba si contiene WHERE
             {
                 if (Valor.Split(' ')[2] != Datos.Instance.diccionarioColeccionada.ElementAt(3).Key)//Cuando tenga
                 {
                     Danger(string.Format("Despues de " + Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " debe de ir " + Datos.Instance.diccionarioColeccionada.ElementAt(3).Key), true); return;
                 }
+                string[] DivValor2 = Regex.Split(Valor.Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
+                DivValor2[1] = DivValor2[1].Trim();
+                string[] DivValor3 = Regex.Split(DivValor2[1].Trim(), "=");//ID=1
+                if (DivValor3.Length != 2)
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " error en la condición"), true); return;
+                }
+                if (DivValor3[0].Trim() == "")
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " no hay nada del lado izquierdo a la igualación"), true); return;
+                }
+                if (DivValor3[1].Trim() == "")
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " no hay nada del lado derecho a la igualación"), true); return;
+                }
+                string Columna = DivValor3[0].Trim();
+                int Final = 0;
+                int Conteo = 0;
+                bool VarChar = false;
             }
-            string[] DivValor2 = Regex.Split(Valor.Trim(), Datos.Instance.diccionarioColeccionada.ElementAt(3).Key);
-            DivValor2[1] = DivValor2[1].Trim();
+
 
             //---------------------------Posibles errores de sintaxis---------------------------
-            string[] DivValor3 = Regex.Split(DivValor2[1].Trim(), "=");//ID=1
-            if (DivValor3.Length != 2)
-            {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " error en la condición"), true); return;
-            }
-            if (DivValor3[0].Trim() == "")
-            {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " no hay nada del lado izquierdo a la igualación"), true); return;
-            }
-            if (DivValor3[1].Trim() == "")
-            {
-                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " no hay nada del lado derecho a la igualación"), true); return;
-            }
+            
 
-            string Columna = DivValor3[0].Trim();
-            int Final = 0;
-            int Conteo = 0;
-            bool VarChar = false;
+            
             if (DivValor3[1].Trim()[0] == '\'')
             {
                 VarChar = true;
@@ -1216,10 +1303,10 @@ namespace ProyectoMicroSQL.Controllers
                 }
 
                 //Comprobar que exista la columna
-                FileStream GTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                StreamReader Lectura = new StreamReader(GTabla);
-                List<string> ColumnaArchivo = new List<string>();
-                List<string> Formato = new List<string>();
+                var GTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                var Lectura = new StreamReader(GTabla);
+                var ColumnaArchivo = new List<string>();
+                var Formato = new List<string>();
                 string Tipo;
                 Lectura.ReadLine();
                 while ((Tipo = Lectura.ReadLine()) != null)
@@ -1262,16 +1349,16 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 VarChar = false;
 
-                BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolACrear = new BTree<string, Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"), 8);
+                var ArbolACrear = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"), 5);
                 List<BTreeDLL.Tabla> DatosLista = ArbolACrear.goOverTreeInOrder();
-                BTreeDLL.Tabla TablaEliminar = new Tabla(int.Parse(DatoVarchar), null);
+                var TablaEliminar = new BTreeDLL.Tabla(int.Parse(DatoVarchar), null);
                 if (ArbolACrear.SearchElementTree(TablaEliminar) == null)
                 {
                     Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(2).Key + " el ID no existe en el arbol"), true); return;
                 }
                 if (Columna == "ID")//Eliminar elemento por ID
                 {
-                    BTreeDLL.Tabla DatoEliminar = new BTreeDLL.Tabla(int.Parse(DatoVarchar), null);
+                    var DatoEliminar = new BTreeDLL.Tabla(int.Parse(DatoVarchar), null);
                     ArbolACrear.DeleteElement(DatoEliminar);
                 }
                 else
@@ -1286,19 +1373,19 @@ namespace ProyectoMicroSQL.Controllers
                                     DatoVarchar = DatoVarchar.Replace("'", "");
                                     if (j == ColumPos && DatosLista.ElementAt(i).Objetos.ElementAt(j).ToString().Replace("#", "") == DatoVarchar)
                                     {
-                                        BTreeDLL.Tabla Eliminar_VARCHAR = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                        var Eliminar_VARCHAR = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
                                         ArbolACrear.DeleteElement(Eliminar_VARCHAR);
                                     }
                                     break;
                                 case "INT":
                                     if (j == ColumPos && Convert.ToInt32(DatosLista.ElementAt(i).Objetos.ElementAt(j)) == int.Parse(DatoVarchar))
                                     {
-                                        BTreeDLL.Tabla Eliminar_INT = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                        var Eliminar_INT = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
                                         ArbolACrear.DeleteElement(Eliminar_INT);
                                     }
                                     break;
                                 case "DATETIME":
-                                    BTreeDLL.Tabla Eliminar_DATETIME = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
+                                    var Eliminar_DATETIME = new BTreeDLL.Tabla(DatosLista.ElementAt(i).ID, null);
                                     ArbolACrear.DeleteElement(Eliminar_DATETIME);
                                     break;
                             }
@@ -1310,7 +1397,7 @@ namespace ProyectoMicroSQL.Controllers
             else//Se eliminan todos los datos, no tiene WHERE
             {
                 System.IO.File.Delete(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTabla + ".arbolb"));
-                BTreeDLL.BTree<string, BTreeDLL.Tabla> ArbolCrear = new BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".tabla"), 8);
+                var ArbolCrear = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/tablas/" + NombreTabla + ".arbolb"), 5);
                 ArbolCrear.CloseStream();
             }
             Success(string.Format("Eliminar exitoso"), true);
@@ -1412,7 +1499,7 @@ namespace ProyectoMicroSQL.Controllers
             string RutaArchivo = (@"~/microSQL/"+Nombre+".csv");
             try
             {
-                System.IO.StreamWriter streamWriter = new StreamWriter(Server.MapPath(RutaArchivo), false);
+                var streamWriter = new StreamWriter(Server.MapPath(RutaArchivo), false);
                 for (int i = 0; i < Datos.Instance.ListaAMostrarSelect.Count; i++)
                 {
                     streamWriter.WriteLine(Datos.Instance.ListaAMostrarSelect[i].Elemento);
@@ -1420,12 +1507,13 @@ namespace ProyectoMicroSQL.Controllers
                 streamWriter.Flush();
                 streamWriter.Close();
                 Success(String.Format("Arhivo creado con exito en carpeta microSQL con el nombre"+Nombre+", retornando a Ingresar codigo"), true);
-                return View("IngresarSQL");
+                return RedirectToAction("IngresarSQL");
             }
             catch (Exception)
             {
-                Danger(string.Format("Hubo un error en la creacion de archivo, retornando a Ingresar codigo"), true);
-                return View("IngresarSQL");
+
+                Danger(string.Format("Hubo un error en la creacion de archivo, HAY UN ARCHIVO CON EL MISMO NOMBRE, retornando a Ingresar codigo"), true);
+                return RedirectToAction("IngresarSQL");
             }
         }
         #endregion
