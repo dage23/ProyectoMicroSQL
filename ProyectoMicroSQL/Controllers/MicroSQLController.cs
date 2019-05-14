@@ -1433,6 +1433,74 @@ namespace ProyectoMicroSQL.Controllers
             {
                 Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no encuentra 'WHERE' en la sintaxis"), true); return;
             }
+
+            string[] ValordeColumna = Regex.Split(ValorDiv2[0], "");//Se utiliza para cambiar el ValorDiv2 y comprobar que ID = 1
+            if (ValordeColumna.Length != 2)//Contiene mas de 2 hay mas de un igual
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " contiene error en el SET"), true); return;
+            }
+            if (ValordeColumna[0].Trim() == "")//La posición 0 está vacia... No hay nada del lado izquierdo
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no contiene nada del lado izquierdo del igual del SET"), true); return;
+            }
+            if (ValordeColumna[1].Trim() == "")//La posición 0 está vacia... No hay nada del lado derecho
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no contiene nada del lado derecho del igual del SET"), true); return;
+            }
+
+            int contFin = 0;
+            int cont = 0;
+            bool varchar = false;//Se utiliza para tomar ciertas restricciones
+            if (ValordeColumna[1].Trim()[0] == '\'')//Se comprueba el ultimo LENGHT
+            {
+
+                varchar = true;
+                for (int i = 0; i < ValordeColumna[1].Trim().Length; i++)
+                {
+                    if (ValordeColumna[1].Trim()[i] == '\'')
+                    {
+                        cont++;
+                        if (cont > 1)
+                        {
+                            contFin = i;
+                            break;
+                        }
+                    }
+                }
+                if (contFin < 2)
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " el valor en WHERE es nulo"), true); return;
+                }
+                if (ValordeColumna[1].Trim().Length != ValordeColumna[1].Trim().Substring(0, contFin + 1).Length)
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " escriba [Columna = Dato] sin nada a la derecha o hacia abajo"), true); return;
+                }
+                ValordeColumna[1] = ValordeColumna[1].Trim().Substring(0, contFin + 1);
+            }
+            var Info = "";
+            if (varchar)
+            {
+                Info = ValordeColumna[1].Trim();
+            }
+            else
+            {
+                Info = ValordeColumna[1].Trim().Split(' ')[0];
+            }
+
+            var DatoTipo = "";
+            //comprobar que exista la columna & obtener numero de parametros
+            var GTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTablaActu + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            var Lectura = new StreamReader(GTabla);
+            var ColumnaArchivo = new List<string>();
+            var Formato = new List<string>();
+            string Actual;
+            Lectura.ReadLine();
+            while ((Actual = Lectura.ReadLine()) != null)//Se llena las columnas y tipos
+            {
+                ColumnaArchivo.Add(Actual.Split(',')[0]);
+                Formato.Add(Actual.Split(',')[1]);
+            }
+            GTabla.Close();
         }
         #endregion
 
