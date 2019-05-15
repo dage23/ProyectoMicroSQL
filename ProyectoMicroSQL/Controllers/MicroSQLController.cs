@@ -1447,6 +1447,7 @@ namespace ProyectoMicroSQL.Controllers
             {
                 Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no contiene nada del lado derecho del igual del SET"), true); return;
             }
+            string NombreColumna = ValordeColumna[0].Trim();
 
             int contFin = 0;
             int cont = 0;
@@ -1501,6 +1502,74 @@ namespace ProyectoMicroSQL.Controllers
                 Formato.Add(Actual.Split(',')[1]);
             }
             GTabla.Close();
+            EsTabla = false;
+            string ArchivoColumna = "";
+            var posicion = -1;
+            for (int i = 0; i < ColumnaArchivo.Count(); i++)
+            {
+                if (ColumnaArchivo.ElementAt(i) == NombreColumna.ToUpper())
+                {
+                    ArchivoColumna = Formato.ElementAt(i);
+                    posicion = i;
+                    EsTabla = true;
+                }
+            }
+            if (!EsTabla)
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no existe la columna"), true); return;
+            }
+            EsTabla = false;
+
+            DatoTipo = saberTipo(Valor);
+            if (!EsTabla)
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " campo modificado en " + Datos.Instance.ListaAtributos.ElementAt(SET) + " no se puede reconocer"), true); return;
+            }
+            if (DatoTipo != ArchivoColumna)
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " campo modificado en " + Datos.Instance.ListaAtributos.ElementAt(SET) + " no tiene el mismo tipo que la coluumna"), true); return;
+            }
+            if (DatoTipo != Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR))
+            {
+                if (ValordeColumna[1].Trim().Split(' ').Length > 1)
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " por favor escriba [Columna = Dato] sin mas a la derecha o hacia abajo"), true); return;
+                }
+            }
+
+            object DatoActualizar = Valor;
+            switch (DatoTipo)//Sintaxis correcta
+            {
+                case "VARCHAR(100)":
+                    DatoActualizar = Valor.Replace("'", "");
+                    break;
+                case "INT":
+                    DatoActualizar = int.Parse(Valor);
+                    break;
+                case "DATETIME":
+                    DatoActualizar = DateTime.Parse(Valor);
+                    break;
+            }
+            string[] ValorDiv3 = Regex.Split(ValorDiv2[1].Trim(), "=");//Para comprobar ID=1
+            if (ValorDiv3.Length != 2)
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " contiene error en la condición"), true); return;
+            }
+            if (ValorDiv3[0].Trim() == "")
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no contiene condicion igualada a la izquierda"), true); return;
+            }
+
+            if (ValorDiv3[1].Trim() == "")
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no contiene condicion igualada a la derecha"), true); return;
+            }
+            NombreColumna = ValorDiv3[0].Trim();
+            if (NombreColumna != "ID")
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " solo se puede modificar por 'ID'"), true); return;
+            }
+
         }
         #endregion
 
