@@ -328,3 +328,7 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# Directorio donde se guardan las pruebas
+MicroSQL\ProyectoMicroSQL\ProyectoMicroSQL\microSQL\arbolesb
+MicroSQL\ProyectoMicroSQL\ProyectoMicroSQL\microSQL\tablas
