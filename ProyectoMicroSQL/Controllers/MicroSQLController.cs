@@ -242,6 +242,10 @@ namespace ProyectoMicroSQL.Controllers
                     //Eliminar Archivo Tabla
                     DropTabla(ArregloOperaciones[i]);
                 }
+                else if (ArregloOperaciones[i].Contains(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key))
+                {
+                    Update(ArregloOperaciones[i]);
+                }
                 else
                 {
                     Danger("Nombre de instrucción no se encuentra en el diccionario", true);
@@ -1408,7 +1412,7 @@ namespace ProyectoMicroSQL.Controllers
             var NombreTablaActu = Valor.Split(' ')[0].Trim();
             string[] Tabla = Datos.Instance.ListaTablasExistentes.ToArray();
             bool EsTabla = false;
-            for (int i = 0; i < NombreTablaActu.Length; i++)//Se recorre para comprobar si tabla existe
+            for (int i = 0; i < Tabla.Length; i++)//Se recorre para comprobar si tabla existe
             {
                 if (Tabla[i] == NombreTablaActu.ToUpper())
                 {
@@ -1434,7 +1438,7 @@ namespace ProyectoMicroSQL.Controllers
                 Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " no encuentra 'WHERE' en la sintaxis"), true); return;
             }
 
-            string[] ValordeColumna = Regex.Split(ValorDiv2[0], "");//Se utiliza para cambiar el ValorDiv2 y comprobar que ID = 1
+            string[] ValordeColumna = Regex.Split(ValorDiv2[0].Trim(), "=");//Se utiliza para cambiar el ValorDiv2 y comprobar que ID = 1
             if (ValordeColumna.Length != 2)//Contiene mas de 2 hay mas de un igual
             {
                 Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " contiene error en el SET"), true); return;
@@ -1502,10 +1506,11 @@ namespace ProyectoMicroSQL.Controllers
                 Formato.Add(Actual.Split(',')[1]);
             }
             GTabla.Close();
+
             EsTabla = false;
             string ArchivoColumna = "";
             var posicion = -1;
-            for (int i = 0; i < ColumnaArchivo.Count(); i++)
+            for (int i = 0; i < ColumnaArchivo.Count(); i++)//Comprueba que exista la columna
             {
                 if (ColumnaArchivo.ElementAt(i) == NombreColumna.ToUpper())
                 {
@@ -1569,7 +1574,115 @@ namespace ProyectoMicroSQL.Controllers
             {
                 Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " solo se puede modificar por 'ID'"), true); return;
             }
+            contFin = 0;
+            cont = 0;
+            varchar = false;
+            if (ValorDiv3[1].Trim()[0] == '\'')
+            {
+                varchar = true;
+                for (int i = 0; i < ValorDiv3[1].Trim().Length; i++)
+                {
+                    cont++;
+                    if (cont > 1)
+                    {
+                        contFin = i;
+                        break;
+                    }
+                }
+                if (contFin < 2)
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " el valor en 'WHERE' es nulo"), true); return;
+                }
+                if (ValorDiv3[1].Trim().Length != ValorDiv3[1].Trim().Substring(0,contFin+1).Length)
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " por favor escriba [Columna = Dato] sin nada mas a la derecha o hacia abajo"), true); return;
+                }
+                ValorDiv3[1] = ValorDiv3[1].Trim().Substring(0, contFin + 1);
+            }
+            Valor = "";
+            if (varchar)
+            {
+                Valor = ValorDiv3[1].Trim();
+            }
+            else
+            {
+                Valor = ValorDiv3[1].Trim().Split(' ')[0];
+            }
+            DatoTipo = "";
 
+            GTabla = new FileStream(Server.MapPath(@"~/microSQL/tablas/" + NombreTablaActu + ".tabla"), FileMode.OpenOrCreate, FileAccess.ReadWrite);//Obtener numeros
+            Lectura = new StreamReader(GTabla);
+            ColumnaArchivo = new List<string>();
+            Formato = new List<string>();
+            Actual = "";
+            while ((Actual = Lectura.ReadLine()) != null)
+            {
+                ColumnaArchivo.Add(Actual.Split(',')[0]);
+                Formato.Add(Actual.Split(',')[1]);
+            }
+            GTabla.Close();
+
+            varchar = false;
+            ArchivoColumna = "";
+            int PosicionActualizar = -1;
+            for (int i = 0; i < ColumnaArchivo.Count; i++)
+            {
+                if (ColumnaArchivo.ElementAt(i) == NombreColumna.ToUpper())
+                {
+                    ArchivoColumna = Formato.ElementAt(i);
+                    PosicionActualizar = i;
+                    varchar = true;
+                }
+            }
+            if (!varchar)
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " en la columna " + Datos.Instance.diccionarioColeccionada.ElementAt(SET) + " no existe"), true); return;
+            }
+            varchar = false;
+
+            DatoTipo = saberTipo(Valor);//Dato igualado sea del mismo tipo
+            if (!varchar)//No existe
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " modificación en " + Datos.Instance.diccionarioColeccionada.ElementAt(SET) + " no se puede reconocer el tipo"), true); return;
+            }
+            if (DatoTipo !=ArchivoColumna)
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " modificación en " + Datos.Instance.diccionarioColeccionada.ElementAt(SET) + " no se puede reconocer el tipo"), true); return;
+            }
+            if (DatoTipo != Datos.Instance.ListaAtributos.ElementAt(FROMoVARCHAR))
+            {
+                if (ValordeColumna[1].Trim().Split(' ').Length > 1)
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " por favor escriba [Columna = Dato] sin mas a la derecha o hacia abajo"), true); return;
+                }
+            }
+
+            int IDActualizar = int.Parse(ValorDiv3[1].Trim());
+            var CrearArbol = new BTreeDLL.BTree<string, BTreeDLL.Tabla>(Server.MapPath(@"~/microSQL/arbolesb/" + NombreTablaActu + ".arbolb"), 5);
+            BTreeDLL.Tabla BuscarTabla = new BTreeDLL.Tabla(IDActualizar, null);
+            BTreeDLL.Tabla TablaActualizar;
+            try
+            {
+                TablaActualizar = CrearArbol.SearchElementTree(BuscarTabla);
+                if (TablaActualizar == null)
+                {
+                    Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " ID que se desea modificar no existe"), true); return;
+                }
+            }
+            catch (NullReferenceException)
+            {
+                Danger(string.Format(Datos.Instance.diccionarioColeccionada.ElementAt(UPDATE).Key + " ID que se desea modificar no existe"), true); return;
+            }
+
+            for (int i = 0; i < TablaActualizar.Objetos.Count; i++)
+            {
+                if (i == posicion - 1)
+                {
+                    TablaActualizar.Objetos[i] = DatoActualizar;
+                }
+            }
+            CrearArbol.UpdateElement(TablaActualizar);
+            CrearArbol.CloseStream();
         }
         #endregion
 
@@ -1675,7 +1788,7 @@ namespace ProyectoMicroSQL.Controllers
                 }
                 streamWriter.Flush();
                 streamWriter.Close();
-                Success(String.Format("Arhivo creado con exito en carpeta microSQL con el nombre"+Nombre+", retornando a Ingresar codigo"), true);
+                Success(String.Format("Arhivo creado con exito en carpeta microSQL con el nombre" + Nombre + ", retornando a Ingresar codigo"), true);
                 return RedirectToAction("IngresarSQL");
             }
             catch (Exception)
